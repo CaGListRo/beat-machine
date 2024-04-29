@@ -25,6 +25,8 @@ class BeatMachine:
                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
                             [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],]
         
+        self.assets = {}
+        
     def calculate_beat_times(self):
         return 60 / (self.bpm * 4)
     
@@ -72,8 +74,8 @@ class BeatMachine:
             if self.play:
                 self.play_instruments()
 
-            self.shift = self.sum_beat_time()
-            self.slot_shifter()
+                self.shift = self.sum_beat_time()
+                self.slot_shifter()
 
             
             
