@@ -1,36 +1,54 @@
+from utils import load_image, scale_image
+
 import pygame as pg
 from time import time
 
 class BeatMachine:
-    def __init__(self):
+    def __init__(self) -> None:
         pg.init()
         self.screen = pg.display.set_mode((1280, 720))
-        self.fps = 0
-        self.run = True
+        self.fps: int = 0
+        self.run: bool = True
 
-        self.bpm = 120
-        self.number_of_beats = 16
-        self.active_instrument_slot = 0
-        self.beat_duration = self.calculate_beat_times()
-        self.beat_time = 0
-        self.play = False
-        self.shift = False
+        self.bpm: int = 120
+        self.number_of_beats: int = 16
+        self.active_instrument_slot: int = 0
+        self.beat_duration: float = self.calculate_beat_times()
+        self.beat_time: float = 0
+        self.play: bool = False
+        self.shift: bool = False
 
-        self.dt = 0
-        self.last_time = time()
-        self.frames = 0
-        self.frames_timer = 0
-        self.instruments = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-                            [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],]
+        self.dt: float = 0
+        self.last_time: float = time()
+        self.frames: int = 0
+        self.frames_timer: float = 0
+        self.instruments: list = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+                                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+                                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
+                                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],]
         
-        self.assets = {}
+        self.assets: dict = {
+            "body": scale_image(load_image(img_name="body"), scalefactor=0.55),
+            "bpm +- 1": scale_image(load_image(img_name="bpm plus minus 1"), scalefactor=0.55),
+            "bpm +- 10": scale_image(load_image(img_name="bpm plus minus 10"), scalefactor=0.55),
+            "button1/active": scale_image(load_image(img_name="button 1 activ"), scalefactor=0.55),
+            "button1/inactive": scale_image(load_image(img_name="button 1 inactiv"), scalefactor=0.55),
+            "button234/active": scale_image(load_image(img_name="button 234 activ"), scalefactor=0.55),
+            "button234/inactive": scale_image(load_image(img_name="button 234 inactiv"), scalefactor=0.55),
+            "pause": scale_image(load_image(img_name="button pause"), scalefactor=0.55),
+            "play/active": scale_image(load_image(img_name="button play activ"), scalefactor=0.55),
+            "play/inactive": scale_image(load_image(img_name="button play inactiv"), scalefactor=0.55),
+            "stop/active": scale_image(load_image(img_name="button stop activ"), scalefactor=0.55),
+            "stop/inactive": scale_image(load_image(img_name="button stop inactiv"), scalefactor=0.55),
+            "slider knob": scale_image(load_image(img_name="slider knob"), scalefactor=0.55),
+            "slot light/active": scale_image(load_image(img_name="slot indicator activ"), scalefactor=0.55),
+            "slot light/inactive": scale_image(load_image(img_name="slot indicator inactiv"), scalefactor=0.55),
+        }
         
-    def calculate_beat_times(self):
+    def calculate_beat_times(self) -> float:
         return 60 / (self.bpm * 4)
     
-    def slot_shifter(self):
+    def slot_shifter(self) -> None:
         if self.shift:
             print(self.active_instrument_slot)
             self.active_instrument_slot += 1
@@ -38,10 +56,10 @@ class BeatMachine:
             if self.active_instrument_slot > self.number_of_beats - 1:
                 self.active_instrument_slot = 0
 
-    def play_instruments(self):
+    def play_instruments(self) -> None:
         pass
 
-    def sum_beat_time(self):
+    def sum_beat_time(self) -> bool:
         self.beat_time += self.dt
         if self.beat_time >= self.beat_duration:
             self.beat_time = 0
@@ -49,23 +67,24 @@ class BeatMachine:
         else:
             return False
         
-    def calculate_fps(self):
+    def calculate_fps(self) -> None:
         self.frames += 1
         self.frames_timer += self.dt
         if self.frames_timer >= 1:
             self.fps = self.frames
             self.frames, self.frames_timer = 0, 0
 
-    def calculate_delta_time(self):
+    def calculate_delta_time(self) -> None:
         self.dt = time() - self.last_time
         self.last_time = time()
 
-    def draw_window(self):
+    def draw_window(self) -> None:
         pg.display.set_caption(f"     Beat Maschine     FPS: {self.fps}")
+        # self.screen.blit(self.assets["body"], (0,0))
 
         pg.display.update()
 
-    def main(self):       
+    def main(self) -> None:       
         while self.run:
             self.calculate_delta_time()
             self.calculate_fps()
