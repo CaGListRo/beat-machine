@@ -31,18 +31,19 @@ class BeatMachine:
             "body": scale_image(load_image(img_name="body"), scalefactor=0.55),
             "bpm +- 1": scale_image(load_image(img_name="bpm plus minus 1"), scalefactor=0.55),
             "bpm +- 10": scale_image(load_image(img_name="bpm plus minus 10"), scalefactor=0.55),
-            "button1/active": scale_image(load_image(img_name="button 1 activ"), scalefactor=0.55),
-            "button1/inactive": scale_image(load_image(img_name="button 1 inactiv"), scalefactor=0.55),
-            "button234/active": scale_image(load_image(img_name="button 234 activ"), scalefactor=0.55),
-            "button234/inactive": scale_image(load_image(img_name="button 234 inactiv"), scalefactor=0.55),
-            "pause": scale_image(load_image(img_name="button pause"), scalefactor=0.55),
-            "play/active": scale_image(load_image(img_name="button play activ"), scalefactor=0.55),
-            "play/inactive": scale_image(load_image(img_name="button play inactiv"), scalefactor=0.55),
-            "stop/active": scale_image(load_image(img_name="button stop activ"), scalefactor=0.55),
-            "stop/inactive": scale_image(load_image(img_name="button stop inactiv"), scalefactor=0.55),
+            "button1/active": scale_image(load_image(img_name="button 1 active"), scalefactor=0.55),
+            "button1/inactive": scale_image(load_image(img_name="button 1 inactive"), scalefactor=0.55),
+            "button234/active": scale_image(load_image(img_name="button 234 active"), scalefactor=0.55),
+            "button234/inactive": scale_image(load_image(img_name="button 234 inactive"), scalefactor=0.55),
+            "pause/active": scale_image(load_image(img_name="button pause active"), scalefactor=0.55),
+            "pause/inactive": scale_image(load_image(img_name="button pause inactive"), scalefactor=0.55),
+            "play/active": scale_image(load_image(img_name="button play active"), scalefactor=0.55),
+            "play/inactive": scale_image(load_image(img_name="button play inactive"), scalefactor=0.55),
+            "stop/active": scale_image(load_image(img_name="button stop active"), scalefactor=0.55),
+            "stop/inactive": scale_image(load_image(img_name="button stop inactive"), scalefactor=0.55),
             "slider knob": scale_image(load_image(img_name="slider knob"), scalefactor=0.55),
-            "slot light/active": scale_image(load_image(img_name="slot indicator activ"), scalefactor=0.55),
-            "slot light/inactive": scale_image(load_image(img_name="slot indicator inactiv"), scalefactor=0.55),
+            "slot light/active": scale_image(load_image(img_name="slot indicator active"), scalefactor=0.55),
+            "slot light/inactive": scale_image(load_image(img_name="slot indicator inactive"), scalefactor=0.55),
         }
         
     def calculate_beat_times(self) -> float:
@@ -80,7 +81,7 @@ class BeatMachine:
 
     def draw_window(self) -> None:
         pg.display.set_caption(f"     Beat Maschine     FPS: {self.fps}")
-        # self.screen.blit(self.assets["body"], (0,0))
+        self.screen.blit(self.assets["body"], (0,0))
 
         pg.display.update()
 

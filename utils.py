@@ -18,4 +18,8 @@ class Button:
         if activatable:
             if not self.active:
                 asset_string = f"{self.type}/inactive"
-        # self.image = self.prog.assets[]
+            else:
+                asset_string = f"{self.type}/active"
+        else:
+            asset_string = self.type
+        self.image = self.prog.assets[asset_string]
