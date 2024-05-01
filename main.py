@@ -1,4 +1,4 @@
-from utils import load_image, scale_image
+from utils import load_image, scale_image, create_beat_button_pattern, Button
 
 import pygame as pg
 from time import time
@@ -25,7 +25,7 @@ class BeatMachine:
         self.instruments: list = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-                                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],]
+                                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],]        
         
         self.assets: dict = {
             "body": scale_image(load_image(img_name="body"), scalefactor=0.55),
@@ -45,6 +45,8 @@ class BeatMachine:
             "slot light/active": scale_image(load_image(img_name="slot indicator active"), scalefactor=0.55),
             "slot light/inactive": scale_image(load_image(img_name="slot indicator inactive"), scalefactor=0.55),
         }
+        
+        self.beat_buttons = create_beat_button_pattern(self)
         
     def calculate_beat_times(self) -> float:
         return 60 / (self.bpm * 4)
@@ -85,7 +87,8 @@ class BeatMachine:
 
         pg.display.update()
 
-    def main(self) -> None:       
+    def main(self) -> None:
+        print(self.beat_buttons)    
         while self.run:
             self.calculate_delta_time()
             self.calculate_fps()
