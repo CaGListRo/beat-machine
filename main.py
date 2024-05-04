@@ -59,6 +59,11 @@ class BeatMachine:
             "tom/one": load_sound(file_path="kit1", sound_name="tom"),
         }
 
+        self.channels = [self.sounds["clap/one"], 
+                         self.sounds["snare/one"], 
+                         self.sounds["kick/one"], 
+                         self.sounds["crash/one"]]
+
         self.beat_buttons = create_beat_button_pattern(self)
         self.slot_lights = create_slot_light_list(self)
         self.sliders = create_sliders(self)
@@ -87,13 +92,13 @@ class BeatMachine:
             
     def play_instruments(self) -> None:
         if self.beat_buttons[0][self.active_instrument_slot].is_active():
-            self.sounds["clap/one"].play()
+            self.channels[0].play()
         if self.beat_buttons[1][self.active_instrument_slot].is_active():
-            self.sounds["snare/one"].play()
+            self.channels[1].play()
         if self.beat_buttons[2][self.active_instrument_slot].is_active():
-            self.sounds["kick/one"].play()
+            self.channels[2].play()
         if self.beat_buttons[3][self.active_instrument_slot].is_active():
-            self.sounds["crash/one"].play()
+            self.channels[3].play()
 
     def sum_beat_time(self) -> bool:
         self.beat_time += self.dt
@@ -115,12 +120,18 @@ class BeatMachine:
         self.last_time = time()
 
     def set_volume(self) -> None:
-        pg.mixer.music.set_volume(self.sliders[0].get_value())
-        self.sounds["clap/one"].set_volume(self.sliders[1].get_value())
-        self.sounds["snare/one"].set_volume(self.sliders[2].get_value())
-        self.sounds["kick/one"].set_volume(self.sliders[3].get_value())
-        self.sounds["crash/one"].set_volume(self.sliders[4].get_value())
-
+        for i in range(4):
+            if self.sliders[i + 1].get_value() < self.sliders[0].get_value() - 0.15:
+                self.channels[i].set_volume(((self.sliders[i + 1].get_value() * 5) + self.sliders[0].get_value()) / 6)
+            elif self.sliders[i + 1].get_value() > self.sliders[0].get_value() + 0.15:
+                self.channels[i].set_volume((self.sliders[i + 1].get_value() + (self.sliders[0].get_value()) * 5) / 6)
+            else:
+                self.channels[i].set_volume((self.sliders[i + 1].get_value() + self.sliders[0].get_value()) / 2)
+            if self.sliders[i + 1].get_value() <= 0.01:
+                self.channels[i].set_volume(0)
+            if self.sliders[0].get_value() <= 0.01:
+                self.channels[i].set_volume(0)
+                    
     def check_slider_collisions(self) -> None:
         for slider in self.sliders:
             slider.check_collision()

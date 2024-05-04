@@ -85,19 +85,24 @@ class Slider:
         self.y_pos: int = y_pos - self.image.get_height() // 2
         self.pos: list = [self.min + self.val - self.image.get_width() // 2, self.y_pos]
         self.rect: pg.rect = self.image.get_rect(topleft=self.pos)
+        self.collide: bool = False
 
     def check_collision(self) -> None:
         mouse_pos = pg.mouse.get_pos()
         if self.rect.collidepoint(mouse_pos):
-            if pg.mouse.get_pressed()[0]:
-                self.pos[0] = mouse_pos[0]
-                if self.pos[0] < self.min:
-                    self.pos[0] = self.min
-                elif self.pos[0] > self.max - self.image.get_width():
-                    self.pos[0] = self.max - self.image.get_width()
+            self.collide = True
+        if pg.mouse.get_pressed()[0] and self.collide:
+            self.pos[0] = mouse_pos[0] + self.image.get_width() // 2
+            if self.pos[0] < self.min:
+                self.pos[0] = self.min
+            elif self.pos[0] > self.max - self.image.get_width() // 2:
+                self.pos[0] = self.max - self.image.get_width() // 2
+            self.rect: pg.rect = self.image.get_rect(topleft=self.pos)
+        if not pg.mouse.get_pressed()[0]:
+            self.collide = False
 
     def get_value(self) -> float:
-        return (self.pos[0] - self.min) / self.range
+        return round((self.pos[0] - self.min) / self.range, 2)
 
     def render(self, surf: pg.surface) -> None:
         surf.blit(self.image, self.pos)
