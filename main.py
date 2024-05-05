@@ -1,4 +1,5 @@
-from utils import load_image, scale_image, load_sound, create_beat_button_pattern, create_slot_light_list, create_sliders, Button
+from utils import load_image, scale_image, load_sound, create_beat_button_pattern, create_slot_light_list, create_sliders
+from elements import Button
 
 import pygame as pg
 from time import time
@@ -49,6 +50,9 @@ class BeatMachine:
             "slot light/inactive": scale_image(load_image(img_name="slot indicator inactive"), scalefactor=0.36),
             "display_glas": scale_image(load_image(img_name="display glas"), scalefactor=0.44),
         }
+
+        self.body_surf = pg.Surface(self.images["body"].get_size())
+        self.body_surf_pos = (self.screen.get_width() - self.body_surf.get_width() - 23, self.screen.get_height() - self.body_surf.get_height() - 23)
 
         self.sounds: dict = {
             "clap/one": load_sound(file_path="kit1", sound_name="clap"),
@@ -140,20 +144,27 @@ class BeatMachine:
         for button_list in self.beat_buttons:
             for btn in button_list:
                 btn.check_collision()
+
         if self.play_button.check_collision():
             if self.pause_button.is_active(): self.pause_button.switch_state()
             if self.stop_button.is_active(): self.stop_button.switch_state()
             self.state = "play"
+            self.play_button.set_state(set_to=True)
+
         if self.pause_button.check_collision():
             if self.play_button.is_active(): self.play_button.switch_state()
             if self.stop_button.is_active(): self.stop_button.switch_state()
             self.state = "pause"
+            self.pause_button.set_state(set_to=True)
+
         if self.stop_button.check_collision():
             if self.pause_button.is_active(): self.pause_button.switch_state()
             if self.play_button.is_active(): self.play_button.switch_state()
             self.state = "stop"
             self.active_instrument_slot = -1
             self.beat_time: float = 60
+            self.stop_button.set_state(set_to=True)
+
         if self.bpm_minus_ten_button.check_collision(): self.bpm -= 10
         if self.bpm_minus_one_button.check_collision(): self.bpm -= 1
         if self.bpm_plus_ten_button.check_collision(): self.bpm += 10
@@ -162,27 +173,30 @@ class BeatMachine:
     def render_buttons(self):
         for button_list in self.beat_buttons:
             for btn in button_list:
-                btn.render(self.screen)
+                btn.render(self.body_surf)
         for light in self.slot_lights:
-            light.render(self.screen)
+            light.render(self.body_surf)
         for slider in self.sliders:
-            slider.render(self.screen)
-        self.play_button.render(self.screen)
-        self.pause_button.render(self.screen)
-        self.stop_button.render(self.screen)
-        self.bpm_minus_ten_button.render(self.screen)
-        self.bpm_minus_one_button.render(self.screen)
-        self.bpm_plus_ten_button.render(self.screen)
-        self.bpm_plus_one_button.render(self.screen)
+            slider.render(self.body_surf)
+        self.play_button.render(self.body_surf)
+        self.pause_button.render(self.body_surf)
+        self.stop_button.render(self.body_surf)
+        self.bpm_minus_ten_button.render(self.body_surf)
+        self.bpm_minus_one_button.render(self.body_surf)
+        self.bpm_plus_ten_button.render(self.body_surf)
+        self.bpm_plus_one_button.render(self.body_surf)
 
     def draw_window(self) -> None:
         pg.display.set_caption(f"     Beat Machine     FPS: {self.fps}")
-        self.screen.blit(self.images["body"], (0,0))
-        self.render_buttons()
+        self.body_surf.blit(self.images["body"], (0,0))
+        
         
         bpm_to_blit = self.font.render(str(self.bpm), False, "green")
-        self.screen.blit(bpm_to_blit, (680 - bpm_to_blit.get_width(), 23))
-        self.screen.blit(self.images["display_glas"], (557, 26))
+        self.body_surf.blit(bpm_to_blit, (680 - bpm_to_blit.get_width(), 23))
+        self.body_surf.blit(self.images["display_glas"], (557, 26))
+        self.render_buttons()
+        self.screen.blit(self.body_surf, self.body_surf_pos)
+        
         pg.display.update()
 
     def main(self) -> None:   
