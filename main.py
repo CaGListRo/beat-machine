@@ -1,5 +1,5 @@
 from utils import load_image, scale_image, load_sound, create_beat_button_pattern, create_slot_light_list, create_sliders
-from elements import Button
+from elements import Button, WindowButton
 
 import pygame as pg
 from time import time
@@ -9,7 +9,7 @@ class BeatMachine:
         pg.init()
         pg.mixer.init()
         pg.mixer.set_num_channels(16)
-        self.screen = pg.display.set_mode((1280, 720))
+        self.main_window = pg.display.set_mode((1280, 720))
         self.fps: int = 0
         self.run: bool = True
 
@@ -32,6 +32,7 @@ class BeatMachine:
                                   [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],]        
         
         self.images: dict = {
+            "background": load_image(img_name="background"),
             "body": scale_image(load_image(img_name="body"), scalefactor=0.55),
             "bpm +- 1": scale_image(load_image(img_name="bpm plus minus 1"), scalefactor=0.36),
             "bpm +- 10": scale_image(load_image(img_name="bpm plus minus 10"), scalefactor=0.36),
@@ -49,24 +50,35 @@ class BeatMachine:
             "slot light/active": scale_image(load_image(img_name="slot indicator active"), scalefactor=0.36),
             "slot light/inactive": scale_image(load_image(img_name="slot indicator inactive"), scalefactor=0.36),
             "display_glas": scale_image(load_image(img_name="display glas"), scalefactor=0.44),
+            "window": load_image(img_name="window"),
+            "save button": scale_image(load_image(img_name="button save"), scalefactor=0.4),
+            "load button": scale_image(load_image(img_name="button load"), scalefactor=0.4),
+            "cancel button": scale_image(load_image(img_name="button cancel"), scalefactor=0.4),
+            "close button": scale_image(load_image(img_name="button close"), scalefactor=0.3),
         }
 
         self.body_surf = pg.Surface(self.images["body"].get_size())
-        self.body_surf_pos = (self.screen.get_width() - self.body_surf.get_width() - 23, self.screen.get_height() - self.body_surf.get_height() - 23)
+        self.body_surf_pos = (self.main_window.get_width() - self.body_surf.get_width() - 23, self.main_window.get_height() - self.body_surf.get_height() - 23)
 
         self.sounds: dict = {
-            "clap/one": load_sound(file_path="kit1", sound_name="clap"),
-            "crash/one": load_sound(file_path="kit1", sound_name="crash"),
-            "hihat/one": load_sound(file_path="kit1", sound_name="hi hat"),
-            "kick/one": load_sound(file_path="kit1", sound_name="kick"),
-            "snare/one": load_sound(file_path="kit1", sound_name="snare"),
-            "tom/one": load_sound(file_path="kit1", sound_name="tom"),
+            "clap/one": load_sound(sound_name="clap1"),
+            "crash/one": load_sound(sound_name="crash1"),
+            "hihat/one": load_sound(sound_name="hi hat1"),
+            "kick/one": load_sound(sound_name="kick1"),
+            "snare/one": load_sound(sound_name="snare1"),
+            "tom/one": load_sound(sound_name="tom1"),
+            "clap/two": load_sound(sound_name="clap2"),
+            "crash/two": load_sound(sound_name="crash2"),
+            "hihat/two": load_sound(sound_name="hi hat2"),
+            "kick/two": load_sound(sound_name="kick2"),
+            "snare/two": load_sound(sound_name="snare2"),
+            "tom/two": load_sound(sound_name="tom2"),
         }
 
         self.channels = [self.sounds["clap/one"], 
                          self.sounds["snare/one"], 
                          self.sounds["kick/one"], 
-                         self.sounds["crash/one"]]
+                         self.sounds["tom/two"]]
 
         self.beat_buttons = create_beat_button_pattern(self)
         self.slot_lights = create_slot_light_list(self)
@@ -79,6 +91,9 @@ class BeatMachine:
         self.bpm_minus_one_button = Button(prog=self, button_type="bpm +- 1", pos=(519, 31), mirror=True)
         self.bpm_plus_ten_button = Button(prog=self, button_type="bpm +- 10", pos=(735, 31))
         self.bpm_plus_one_button = Button(prog=self, button_type="bpm +- 1", pos=(697, 31))
+
+        self.load_button = WindowButton(prog=self, button_type="load button", pos=(50, 360))
+        self.save_button = Button(prog=self, button_type="save button", pos=(50, 540))
         
     def calculate_beat_times(self) -> float:
         return 60 / (self.bpm * 4)
@@ -170,6 +185,8 @@ class BeatMachine:
         if self.bpm_plus_ten_button.check_collision(): self.bpm += 10
         if self.bpm_plus_one_button.check_collision(): self.bpm += 1
 
+        if self.save_button.check_collision(): pass
+
     def render_buttons(self):
         for button_list in self.beat_buttons:
             for btn in button_list:
@@ -185,9 +202,12 @@ class BeatMachine:
         self.bpm_minus_one_button.render(self.body_surf)
         self.bpm_plus_ten_button.render(self.body_surf)
         self.bpm_plus_one_button.render(self.body_surf)
+        self.load_button.render(self.main_window)
+        self.save_button.render(self.main_window)
 
     def draw_window(self) -> None:
         pg.display.set_caption(f"     Beat Machine     FPS: {self.fps}")
+        self.main_window.blit(self.images["background"], (0,0))
         self.body_surf.blit(self.images["body"], (0,0))
         
         
@@ -195,7 +215,7 @@ class BeatMachine:
         self.body_surf.blit(bpm_to_blit, (680 - bpm_to_blit.get_width(), 23))
         self.body_surf.blit(self.images["display_glas"], (557, 26))
         self.render_buttons()
-        self.screen.blit(self.body_surf, self.body_surf_pos)
+        self.main_window.blit(self.body_surf, self.body_surf_pos)
         
         pg.display.update()
 

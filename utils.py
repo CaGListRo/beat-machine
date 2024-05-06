@@ -8,8 +8,8 @@ def load_image(img_name: str) -> pg.Surface:
 def scale_image(image: str, scalefactor: float) -> pg.Surface:
     return pg.transform.scale(image, (int(image.get_width() * scalefactor), int(image.get_height() * scalefactor)))
 
-def load_sound(file_path: str, sound_name: str) -> pg.mixer:
-    return pg.mixer.Sound("sounds/" + file_path + "/" + sound_name + ".wav")
+def load_sound(sound_name: str) -> pg.mixer:
+    return pg.mixer.Sound("sounds/" + sound_name + ".wav")
 
 def create_beat_button_pattern(program: object) -> list:
     beat_button_pattern = []

@@ -93,3 +93,27 @@ class SlotLight:
 
     def render(self, surf: pg.Surface) -> None:
         surf.blit(self.image, self.pos)
+
+
+class WindowButton:
+    def __init__(self, prog: object, button_type: str, pos: tuple) -> None:
+        self.prog: object = prog
+        self.button_type: str = button_type
+        self.pos: tuple = pos     
+        self.image: pg.image = self.prog.images[button_type]
+        self.rect: pg.rect = self.image.get_rect(topleft=self.pos)
+        self.clicked: bool = False
+    
+    def check_collision(self) -> bool:
+        mouse_pos = pg.mouse.get_pos()
+        if self.rect.collidepoint(mouse_pos):
+            if pg.mouse.get_pressed()[0]:
+                self.clicked = True
+            if not pg.mouse.get_pressed()[0] and self.clicked:
+                self.clicked = False
+                return True           
+        else:
+            self.clicked = False
+
+    def render(self, surf: pg.surface) -> None:
+        surf.blit(self.image, self.pos)
