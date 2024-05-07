@@ -1,5 +1,6 @@
 from utils import load_image, scale_image, load_sound, create_beat_button_pattern, create_slot_light_list, create_sliders
 from elements import Button, WindowButton
+from pages import SavePage
 
 import pygame as pg
 from time import time
@@ -58,7 +59,8 @@ class BeatMachine:
         }
 
         self.body_surf = pg.Surface(self.images["body"].get_size())
-        self.body_surf_pos = (self.main_window.get_width() - self.body_surf.get_width() - 23, self.main_window.get_height() - self.body_surf.get_height() - 23)
+        self.body_surf_pos: tuple = (self.main_window.get_width() - self.body_surf.get_width() - 23, 
+                                     self.main_window.get_height() - self.body_surf.get_height() - 23)
 
         self.sounds: dict = {
             "clap/one": load_sound(sound_name="clap1"),
@@ -75,25 +77,26 @@ class BeatMachine:
             "tom/two": load_sound(sound_name="tom2"),
         }
 
-        self.channels = [self.sounds["clap/one"], 
-                         self.sounds["snare/one"], 
-                         self.sounds["kick/one"], 
-                         self.sounds["tom/two"]]
+        self.channels: list = [self.sounds["clap/one"], 
+                               self.sounds["snare/one"], 
+                               self.sounds["kick/one"], 
+                               self.sounds["tom/two"]]
 
-        self.beat_buttons = create_beat_button_pattern(self)
-        self.slot_lights = create_slot_light_list(self)
-        self.sliders = create_sliders(self)
+        self.beat_buttons: list = create_beat_button_pattern(self)
+        self.slot_lights: list = create_slot_light_list(self)
+        self.sliders: list = create_sliders(self)
 
-        self.play_button = Button(prog=self, button_type="play", pos=(988, 31), activatable=True)
-        self.pause_button = Button(prog=self, button_type="pause", pos=(931, 31), activatable=True)
-        self.stop_button = Button(prog=self, button_type="stop", pos=(882, 31), activatable=True)
-        self.bpm_minus_ten_button = Button(prog=self, button_type="bpm +- 10", pos=(470, 31), mirror=True)
-        self.bpm_minus_one_button = Button(prog=self, button_type="bpm +- 1", pos=(519, 31), mirror=True)
-        self.bpm_plus_ten_button = Button(prog=self, button_type="bpm +- 10", pos=(735, 31))
-        self.bpm_plus_one_button = Button(prog=self, button_type="bpm +- 1", pos=(697, 31))
+        self.play_button: object = Button(prog=self, button_type="play", pos=(988, 31), activatable=True)
+        self.pause_button: object = Button(prog=self, button_type="pause", pos=(931, 31), activatable=True)
+        self.stop_button: object = Button(prog=self, button_type="stop", pos=(882, 31), activatable=True)
+        self.bpm_minus_ten_button: object = Button(prog=self, button_type="bpm +- 10", pos=(470, 31), mirror=True)
+        self.bpm_minus_one_button: object = Button(prog=self, button_type="bpm +- 1", pos=(519, 31), mirror=True)
+        self.bpm_plus_ten_button: object = Button(prog=self, button_type="bpm +- 10", pos=(735, 31))
+        self.bpm_plus_one_button: object = Button(prog=self, button_type="bpm +- 1", pos=(697, 31))
 
-        self.load_button = WindowButton(prog=self, button_type="load button", pos=(50, 360))
-        self.save_button = Button(prog=self, button_type="save button", pos=(50, 540))
+        self.load_button: object = WindowButton(prog=self, button_type="load button", pos=(50, 360))
+        self.save_button: object = WindowButton(prog=self, button_type="save button", pos=(50, 540))
+        self.save_page: object = SavePage(self)
         
     def calculate_beat_times(self) -> float:
         return 60 / (self.bpm * 4)
@@ -185,7 +188,14 @@ class BeatMachine:
         if self.bpm_plus_ten_button.check_collision(): self.bpm += 10
         if self.bpm_plus_one_button.check_collision(): self.bpm += 1
 
-        if self.save_button.check_collision(): pass
+        if self.save_button.check_collision():
+            self.state = "save"
+            
+
+    def handle_events(self):
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                self.run = False
 
     def render_buttons(self):
         for button_list in self.beat_buttons:
@@ -216,32 +226,33 @@ class BeatMachine:
         self.body_surf.blit(self.images["display_glas"], (557, 26))
         self.render_buttons()
         self.main_window.blit(self.body_surf, self.body_surf_pos)
+        if self.state == "save":
+            self.save_page.render(self.main_window)
         
         pg.display.update()
 
     def main(self) -> None:   
         while self.run:
-            self.calculate_delta_time()
-            self.calculate_fps()
-            self.beat_duration = self.calculate_beat_times()
-            self.check_button_collisions()
-            self.check_slider_collisions()
-            self.set_volume()
-            for light in self.slot_lights:
-                light.update()
-                    
-            if self.state == "play" or self.state == "pause":                
-                self.de_activate_slot_lights()
+            if self.state != "save" and self.state != "load":
+                self.calculate_delta_time()
+                self.calculate_fps()
+                self.beat_duration = self.calculate_beat_times()
+                self.check_button_collisions()
+                self.check_slider_collisions()
+                self.set_volume()
+                for light in self.slot_lights:
+                    light.update()
+                        
+                if self.state == "play" or self.state == "pause":                
+                    self.de_activate_slot_lights()
 
-            if self.state == "play":
-                self.shift = self.sum_beat_time()
-                self.slot_shifter()
+                if self.state == "play":
+                    self.shift = self.sum_beat_time()
+                    self.slot_shifter()
+            elif self.state == "save":
+                self.save_page.update()
 
-            
-            
-            for event in pg.event.get():
-                if event.type == pg.QUIT:
-                    self.run = False
+            self.handle_events()
 
             self.draw_window()
 
