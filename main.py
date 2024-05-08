@@ -27,10 +27,7 @@ class BeatMachine:
         self.last_time: float = time()
         self.frames: int = 0
         self.frames_timer: float = 0
-        self.instruments: list = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-                                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-                                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],
-                                  [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,],]        
+        self.instruments: list = [[0 for _ in range(16)] for _ in range(4)]       
         
         self.images: dict = {
             "background": load_image(img_name="background"),
@@ -62,6 +59,11 @@ class BeatMachine:
         self.body_surf_pos: tuple = (self.main_window.get_width() - self.body_surf.get_width() - 23, 
                                      self.main_window.get_height() - self.body_surf.get_height() - 23)
 
+        self.all_sound_names: list = ["clap/one", "crash/one", "hihat/one", "kick/one", "snare/one", "tom/one", 
+                                      "clap/two", "crash/two", "hihat/two", "kick/two", "snare/two", "tom/two"]
+        
+        self.sounds_to_use: list = ["clap/one", "snare/one", "kick/one", "tom/two"]
+
         self.sounds: dict = {
             "clap/one": load_sound(sound_name="clap1"),
             "crash/one": load_sound(sound_name="crash1"),
@@ -77,10 +79,10 @@ class BeatMachine:
             "tom/two": load_sound(sound_name="tom2"),
         }
 
-        self.channels: list = [self.sounds["clap/one"], 
-                               self.sounds["snare/one"], 
-                               self.sounds["kick/one"], 
-                               self.sounds["tom/two"]]
+        self.channels: list = [self.sounds[self.sounds_to_use[0]], 
+                               self.sounds[self.sounds_to_use[1]], 
+                               self.sounds[self.sounds_to_use[2]], 
+                               self.sounds[self.sounds_to_use[3]]]
 
         self.beat_buttons: list = create_beat_button_pattern(self)
         self.slot_lights: list = create_slot_light_list(self)
@@ -96,7 +98,7 @@ class BeatMachine:
 
         self.load_button: object = WindowButton(prog=self, button_type="load button", pos=(50, 360))
         self.save_button: object = WindowButton(prog=self, button_type="save button", pos=(50, 540))
-        self.save_page: object = SavePage(self)
+        
         
     def calculate_beat_times(self) -> float:
         return 60 / (self.bpm * 4)
@@ -190,6 +192,7 @@ class BeatMachine:
 
         if self.save_button.check_collision():
             self.state = "save"
+            self.save_page: object = SavePage(self)
             
 
     def handle_events(self):

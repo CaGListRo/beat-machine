@@ -101,7 +101,11 @@ class WindowButton:
         self.button_type: str = button_type
         self.pos: tuple = pos     
         self.image: pg.image = self.prog.images[button_type]
-        self.rect: pg.rect = self.image.get_rect(topleft=self.pos)
+        if self.prog.state == "save" or self.prog.state == "load":
+            rect_pos: tuple = (self.pos[0] + 240, self.pos[1] + 60)
+        else:
+            rect_pos: tuple = self.pos
+        self.rect: pg.rect = self.image.get_rect(topleft=rect_pos)
         self.clicked: bool = False
     
     def check_collision(self) -> bool:
