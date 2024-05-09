@@ -80,7 +80,8 @@ class SavePage(Page):
         self.cancel_button.render(self.surface)
 
         self.surface.blit(self.explain_text_to_blit, self.explain_text_pos)
-        pg.draw.rect(self.surface, "black", self.entry_rect, width=2, border_radius=3)      
+        pg.draw.rect(self.surface, (200, 200, 200), self.entry_rect, border_radius=3)
+        pg.draw.rect(self.surface, "black", self.entry_rect, width=2, border_radius=3)     
         save_string_to_blit = self.font.render(self.save_string, True, "black")
         self.surface.blit(save_string_to_blit, (240, 280))
 

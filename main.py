@@ -22,6 +22,7 @@ class BeatMachine:
         self.state: str = "stop"
         self.shift: bool = False
         self.font = pg.font.SysFont("arial", 40)
+        self.sounds_font = pg.font.SysFont("arial", 23)
 
         self.dt: float = 0
         self.last_time: float = time()
@@ -49,6 +50,7 @@ class BeatMachine:
             "slot light/inactive": scale_image(load_image(img_name="slot indicator inactive"), scalefactor=0.36),
             "display_glas": scale_image(load_image(img_name="display glas"), scalefactor=0.44),
             "window": load_image(img_name="window"),
+            "small window": load_image(img_name="small window"),
             "save button": scale_image(load_image(img_name="button save"), scalefactor=0.4),
             "load button": scale_image(load_image(img_name="button load"), scalefactor=0.4),
             "cancel button": scale_image(load_image(img_name="button cancel"), scalefactor=0.4),
@@ -169,13 +171,11 @@ class BeatMachine:
             if self.pause_button.is_active(): self.pause_button.switch_state()
             if self.stop_button.is_active(): self.stop_button.switch_state()
             self.state = "play"
-            self.play_button.set_state(set_to=True)
 
         if self.pause_button.check_collision():
             if self.play_button.is_active(): self.play_button.switch_state()
             if self.stop_button.is_active(): self.stop_button.switch_state()
             self.state = "pause"
-            self.pause_button.set_state(set_to=True)
 
         if self.stop_button.check_collision():
             if self.pause_button.is_active(): self.pause_button.switch_state()
@@ -183,10 +183,13 @@ class BeatMachine:
             self.state = "stop"
             self.active_instrument_slot = -1
             self.beat_time: float = 60
-            self.stop_button.set_state(set_to=True)
 
-        if self.bpm_minus_ten_button.check_collision(): self.bpm -= 10
-        if self.bpm_minus_one_button.check_collision(): self.bpm -= 1
+        if self.bpm_minus_ten_button.check_collision():
+            if self.bpm >= 11:
+                self.bpm -= 10
+        if self.bpm_minus_one_button.check_collision():
+            if self.bpm >= 2:
+                self.bpm -= 1
         if self.bpm_plus_ten_button.check_collision(): self.bpm += 10
         if self.bpm_plus_one_button.check_collision(): self.bpm += 1
 
@@ -194,7 +197,6 @@ class BeatMachine:
             self.state = "save"
             self.save_page: object = SavePage(self)
             
-
     def handle_events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -228,6 +230,10 @@ class BeatMachine:
         self.body_surf.blit(bpm_to_blit, (680 - bpm_to_blit.get_width(), 23))
         self.body_surf.blit(self.images["display_glas"], (557, 26))
         self.render_buttons()
+        for i, sound_name in enumerate(self.sounds_to_use):
+            text_to_blit = self.sounds_font.render(sound_name, True, "black")
+            text_to_blit = pg.transform.rotate(text_to_blit, 45)
+            self.body_surf.blit(text_to_blit, (5, 120 + i * 97))
         self.main_window.blit(self.body_surf, self.body_surf_pos)
         if self.state == "save":
             self.save_page.render(self.main_window)
