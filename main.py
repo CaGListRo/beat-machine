@@ -50,7 +50,7 @@ class BeatMachine:
             "slot light/inactive": scale_image(load_image(img_name="slot indicator inactive"), scalefactor=0.36),
             "display_glas": scale_image(load_image(img_name="display glas"), scalefactor=0.44),
             "window": load_image(img_name="window"),
-            "small window": load_image(img_name="small window"),
+            "small window": scale_image(load_image(img_name="small window"), scalefactor=0.9),
             "save button": scale_image(load_image(img_name="button save"), scalefactor=0.4),
             "load button": scale_image(load_image(img_name="button load"), scalefactor=0.4),
             "cancel button": scale_image(load_image(img_name="button cancel"), scalefactor=0.4),
@@ -100,7 +100,13 @@ class BeatMachine:
 
         self.load_button: object = WindowButton(prog=self, button_type="load button", pos=(50, 360))
         self.save_button: object = WindowButton(prog=self, button_type="save button", pos=(50, 540))
-        
+
+        self.file_exists_text1 = "This file name already exists,"
+        self.file_exists_text2 = "choose another one."
+        self.file_exists_surf1 = self.font.render(self.file_exists_text1, True, "darkred")
+        self.file_exists_surf2 = self.font.render(self.file_exists_text2, True, "darkred")
+        self.file_exists_error = False
+        self.error_show_time = 0
         
     def calculate_beat_times(self) -> float:
         return 60 / (self.bpm * 4)
@@ -225,18 +231,34 @@ class BeatMachine:
         self.main_window.blit(self.images["background"], (0,0))
         self.body_surf.blit(self.images["body"], (0,0))
         
-        
         bpm_to_blit = self.font.render(str(self.bpm), False, "green")
         self.body_surf.blit(bpm_to_blit, (680 - bpm_to_blit.get_width(), 23))
         self.body_surf.blit(self.images["display_glas"], (557, 26))
         self.render_buttons()
+
         for i, sound_name in enumerate(self.sounds_to_use):
             text_to_blit = self.sounds_font.render(sound_name, True, "black")
             text_to_blit = pg.transform.rotate(text_to_blit, 45)
             self.body_surf.blit(text_to_blit, (5, 120 + i * 97))
         self.main_window.blit(self.body_surf, self.body_surf_pos)
+
         if self.state == "save":
             self.save_page.render(self.main_window)
+
+        if self.file_exists_error:
+            self.error_show_time += self.dt
+            self.main_window.blit(self.images["small window"], 
+                              (self.main_window.get_width() // 2 - self.images["small window"].get_width() // 2, 
+                               self.main_window.get_height() // 2 - self.images["small window"].get_height() // 2))
+            self.main_window.blit(self.file_exists_surf1, 
+                              (self.main_window.get_width() // 2 - self.file_exists_surf1.get_width() // 2, 
+                               self.main_window.get_height() // 2 - self.file_exists_surf1.get_height()))
+            self.main_window.blit(self.file_exists_surf2, 
+                              (self.main_window.get_width() // 2 - self.file_exists_surf2.get_width() // 2, 
+                               self.main_window.get_height() // 2 + self.file_exists_surf2.get_height()))
+        if self.error_show_time >= 3:
+            self.file_exists_error = False
+            self.error_show_time = 0
         
         pg.display.update()
 

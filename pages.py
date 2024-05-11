@@ -39,6 +39,8 @@ class SavePage(Page):
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_BACKSPACE:
                     self.save_string = self.save_string[:-1]
+                elif event.key == pg.K_RETURN and len(self.save_string) > 0:
+                    self.save_beat()
                 else:
                     if len(self.save_string) < 13:
                         self.save_string += event.unicode
@@ -57,9 +59,11 @@ class SavePage(Page):
                     for btn in row:
                         file.write(str(btn.is_active()))
                         file.write(", ")
+            self.save_string = ""
+            self.prog.state = "stop"
 
         except FileExistsError:
-            pass
+            self.prog.file_exists_error = True
 
     def check_collisions(self) -> None:
         if self.close_button.check_collision() or self.cancel_button.check_collision():
