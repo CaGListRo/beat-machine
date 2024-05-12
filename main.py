@@ -1,6 +1,6 @@
 from utils import load_image, scale_image, load_sound, create_beat_button_pattern, create_slot_light_list, create_sliders
 from elements import Button, WindowButton
-from pages import SavePage
+from pages import SavePage, LoadPage
 
 import pygame as pg
 from time import time
@@ -202,6 +202,10 @@ class BeatMachine:
         if self.save_button.check_collision():
             self.state = "save"
             self.save_page: object = SavePage(self)
+        
+        if self.load_button.check_collision():
+            self.state = "save"
+            self.save_page: object = LoadPage(self)
             
     def handle_events(self):
         for event in pg.event.get():
