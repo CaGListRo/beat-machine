@@ -18,7 +18,7 @@ class Page:
                            self.prog.main_window.get_height() // 2 - self.surface.get_height() // 2)
         
         close_button_pos = (self.prog.images["window"].get_width() - self.prog.images["close button"].get_width(), 0)
-        self.close_button = WindowButton(prog=self.prog, button_type="close button", pos=close_button_pos)
+        self.close_button = WindowButton(prog=self.prog, button_type="close button", pos=close_button_pos, offset=(240, 60))
 
         self.font = pg.font.SysFont("arial", 32)
         self.header_font = pg.font.SysFont("arial bold", 42)
@@ -28,12 +28,13 @@ class SavePage(Page):
     def __init__(self, program: object) -> None:
         super().__init__(program=program)
         self.save_string: str = ""
-        self.save_button: object = WindowButton(prog=self.prog, button_type="save button", pos=(234, 502))
-        self.cancel_button: object = WindowButton(prog=self.prog, button_type="cancel button", pos=(450, 502))
+        self.save_button: object = WindowButton(prog=self.prog, button_type="save button", pos=(234, 502), offset=(240, 60))
+        self.cancel_button: object = WindowButton(prog=self.prog, button_type="cancel button", pos=(450, 502), offset=(240, 60))
         self.entry_rect: pg.rect = pg.Rect(234, 280, 332, 40)
         explain_text: str = "Enter at least one character to name your beat."
         self.explain_text_to_blit = self.font.render(explain_text, True, "black")
         self.explain_text_pos = (self.surface.get_width() // 2 - self.explain_text_to_blit.get_width() // 2, 150)
+        self.error = False
 
     def handle_events(self) -> None:
         for event in pg.event.get():
@@ -67,7 +68,8 @@ class SavePage(Page):
             self.prog.state = "stop"
 
         except FileExistsError:
-            self.prog.file_exists_error = True
+            self.error_page = ErrorPage(program=self.prog, error="FileExistsError")
+            self.error = True
 
     def check_collisions(self) -> None:
         if self.close_button.check_collision() or self.cancel_button.check_collision():
@@ -93,14 +95,17 @@ class SavePage(Page):
         save_string_to_blit = self.font.render(self.save_string, True, "black")
         self.surface.blit(save_string_to_blit, (240, 280))
 
+        if self.error:
+            self.error_page.render(self.surface)
+
         surf.blit(self.surface, self.pos)
 
 
 class LoadPage(Page):
     def __init__(self, program: object) -> None:
         super().__init__(program=program)
-        self.load_button: object = WindowButton(prog=self.prog, button_type="load button", pos=(100, 150))
-        self.cancel_button: object = WindowButton(prog=self.prog, button_type="cancel button", pos=(100, 350))
+        self.load_button: object = WindowButton(prog=self.prog, button_type="load button", pos=(100, 150), offset=(240, 60))
+        self.cancel_button: object = WindowButton(prog=self.prog, button_type="cancel button", pos=(100, 350), offset=(240, 60))
         header_text: str = "Load beat."
         self.header_text_to_blit: pg.surface = self.header_font.render(header_text, True, "black")
         self.header_text_pos: tuple = (self.surface.get_width() // 2 - self.header_text_to_blit.get_width() // 2, 20)
@@ -113,7 +118,6 @@ class LoadPage(Page):
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.run = False
-
 
     def list_directory(self) -> None:
         for file in os.listdir(self.PATH):
@@ -154,3 +158,48 @@ class LoadPage(Page):
         
 
         surf.blit(self.surface, self.pos)
+
+
+class ErrorPage:
+    def __init__(self, program: object, error: str) -> None:
+        self.prog: object = program
+
+        self.surface: pg.surface = pg.Surface(self.prog.images["small window"].get_size())
+        self.surface.fill((111, 111, 111))
+        self.surface.set_colorkey((111, 111, 111))
+
+        self.pos: tuple = (self.prog.main_window.get_width() // 2 - self.surface.get_width() // 2,
+                           self.prog.main_window.get_height() // 2 - self.surface.get_height() // 2)
+        
+        close_button_pos = (self.surface.get_width() - self.prog.images["close button"].get_width(), 0)
+        self.close_button = WindowButton(prog=self.prog, button_type="close button", pos=close_button_pos, offset=(280, 224))
+        print(self.surface.get_size())
+
+        self.font = pg.font.SysFont("arial", 32)
+
+        self.error: str = error
+        if self.error == "FileExistsError":
+            self.file_exists_text1: str = "This file name already exists,"
+            self.file_exists_text2: str = "choose another one."
+            self.file_exists_surf1: pg.surface = self.font.render(self.file_exists_text1, True, "darkred")
+            self.file_exists_surf2: pg.surface = self.font.render(self.file_exists_text2, True, "darkred")
+
+    def check_collisions(self) -> None:
+        if self.close_button.check_collision():
+            self.prog.save_page.error = False
+
+    def render(self, surf):
+        self.check_collisions()
+        if self.error == "FileExistsError":
+            self.surface.blit(self.prog.images["small window"], (0, 0))
+            self.surface.blit(self.file_exists_surf1, 
+                     (self.surface.get_width() // 2 - self.file_exists_surf1.get_width() // 2, 
+                      self.prog.images["small window"].get_height() // 2 - self.file_exists_surf1.get_height()))
+            self.surface.blit(self.file_exists_surf2, 
+                     (self.surface.get_width() // 2 - self.file_exists_surf2.get_width() // 2, 
+                      self.prog.images["small window"].get_height() // 2 + self.file_exists_surf2.get_height() - 30))
+        
+        self.close_button.render(self.surface)
+        surf.blit(self.surface, (surf.get_width() // 2 - self.prog.images["small window"].get_width() // 2, 
+                      surf.get_height() // 2 - self.prog.images["small window"].get_height() // 2))
+        

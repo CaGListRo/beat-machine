@@ -98,15 +98,12 @@ class SlotLight:
 
 
 class WindowButton:
-    def __init__(self, prog: object, button_type: str, pos: tuple) -> None:
+    def __init__(self, prog: object, button_type: str, pos: tuple, offset: tuple) -> None:
         self.prog: object = prog
         self.button_type: str = button_type
         self.pos: tuple = pos     
         self.image: pg.image = self.prog.images[button_type]
-        if self.prog.state == "save" or self.prog.state == "load":
-            rect_pos: tuple = (self.pos[0] + 240, self.pos[1] + 60)
-        else:
-            rect_pos: tuple = self.pos
+        rect_pos: tuple = (self.pos[0] + offset[0], self.pos[1] + offset[1])
         self.rect: pg.rect = self.image.get_rect(topleft=rect_pos)
         self.clicked: bool = False
     

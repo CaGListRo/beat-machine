@@ -98,15 +98,11 @@ class BeatMachine:
         self.bpm_plus_ten_button: object = Button(prog=self, button_type="bpm +- 10", pos=(735, 31))
         self.bpm_plus_one_button: object = Button(prog=self, button_type="bpm +- 1", pos=(697, 31))
 
-        self.load_button: object = WindowButton(prog=self, button_type="load button", pos=(50, 360))
-        self.save_button: object = WindowButton(prog=self, button_type="save button", pos=(50, 540))
+        self.load_button: object = WindowButton(prog=self, button_type="load button", pos=(50, 360), offset=(0, 0))
+        self.save_button: object = WindowButton(prog=self, button_type="save button", pos=(50, 540), offset=(0, 0))
 
-        self.file_exists_text1 = "This file name already exists,"
-        self.file_exists_text2 = "choose another one."
-        self.file_exists_surf1 = self.font.render(self.file_exists_text1, True, "darkred")
-        self.file_exists_surf2 = self.font.render(self.file_exists_text2, True, "darkred")
-        self.file_exists_error = False
-        self.error_show_time = 0
+        
+
         
     def calculate_beat_times(self) -> float:
         return 60 / (self.bpm * 4)
@@ -248,21 +244,6 @@ class BeatMachine:
 
         if self.state == "save":
             self.save_page.render(self.main_window)
-
-        if self.file_exists_error:
-            self.error_show_time += self.dt
-            self.main_window.blit(self.images["small window"], 
-                              (self.main_window.get_width() // 2 - self.images["small window"].get_width() // 2, 
-                               self.main_window.get_height() // 2 - self.images["small window"].get_height() // 2))
-            self.main_window.blit(self.file_exists_surf1, 
-                              (self.main_window.get_width() // 2 - self.file_exists_surf1.get_width() // 2, 
-                               self.main_window.get_height() // 2 - self.file_exists_surf1.get_height()))
-            self.main_window.blit(self.file_exists_surf2, 
-                              (self.main_window.get_width() // 2 - self.file_exists_surf2.get_width() // 2, 
-                               self.main_window.get_height() // 2 + self.file_exists_surf2.get_height()))
-        if self.error_show_time >= 3:
-            self.file_exists_error = False
-            self.error_show_time = 0
         
         pg.display.update()
 
