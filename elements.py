@@ -120,3 +120,47 @@ class WindowButton:
 
     def render(self, surf: pg.surface) -> None:
         surf.blit(self.image, self.pos)
+
+
+class FileButton:
+    def __init__(self, file_name: str, pos: tuple, offset: tuple, rect_size: tuple) -> None:
+        self.file_name: str = str(file_name)
+        self.font = pg.font.SysFont("arial", 32)      
+
+        self.rect_colors: dict = {"inactive": "white", "hover": "lightgray", "active": "black"}
+        self.text_colors: dict = {"inactive": "black", "hover": "black", "active": "white"} 
+
+        rect_pos: tuple = (pos[0] + offset[0], pos[1] + offset[1])
+        self.rect: pg.rect = pg.Rect(rect_pos, rect_size)
+        self.clicked: bool = False
+        self.state: str = "inactive"
+        self.offset: tuple = offset
+
+    def set_inactive(self):
+        self.state = "inactive"
+
+    def is_active(self) -> bool:
+        return self.state == "active"
+    
+    def check_collision(self) -> bool:
+        mouse_pos = pg.mouse.get_pos()
+        if self.rect.collidepoint(mouse_pos):
+            if self.state == "inactive":
+                self.state = "hover"
+            if pg.mouse.get_pressed()[0]:
+                self.clicked = True
+            if not pg.mouse.get_pressed()[0] and self.clicked and self.state == "hover":
+                self.state = "active"
+                self.clicked = False
+                return True           
+        else:
+            if self.state == "hover":
+                self.state = "inactive"
+            self.clicked = False
+
+    def render(self, surf: pg.surface) -> None:
+        position = (self.rect[0] - self.offset[0], self.rect[1] - self.offset[1])
+        pg.draw.rect(surf, self.rect_colors[self.state], (position, (self.rect[2], self.rect[3])))
+        text_to_blit = self.font.render(self.file_name, True, self.text_colors[self.state])
+        surf.blit(text_to_blit, position)
+        

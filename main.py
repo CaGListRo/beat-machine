@@ -100,10 +100,7 @@ class BeatMachine:
 
         self.load_button: object = WindowButton(prog=self, button_type="load button", pos=(50, 360), offset=(0, 0))
         self.save_button: object = WindowButton(prog=self, button_type="save button", pos=(50, 540), offset=(0, 0))
-
-        
-
-        
+     
     def calculate_beat_times(self) -> float:
         return 60 / (self.bpm * 4)
     
@@ -203,12 +200,12 @@ class BeatMachine:
             self.state = "save"
             self.save_page: object = LoadPage(self)
             
-    def handle_events(self):
+    def handle_events(self) -> None:
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.run = False
 
-    def render_buttons(self):
+    def render_buttons(self) -> None:
         for button_list in self.beat_buttons:
             for btn in button_list:
                 btn.render(self.body_surf)

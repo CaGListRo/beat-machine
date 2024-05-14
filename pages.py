@@ -1,4 +1,4 @@
-from elements import WindowButton
+from elements import WindowButton, FileButton
 
 import pygame as pg
 import os
@@ -110,10 +110,17 @@ class LoadPage(Page):
         self.header_text_to_blit: pg.surface = self.header_font.render(header_text, True, "black")
         self.header_text_pos: tuple = (self.surface.get_width() // 2 - self.header_text_to_blit.get_width() // 2, 20)
         self.file_strings: list = []
+        self.file_buttons: list = []
+        self.collision_rects: list = []
+        self.active_one: int = None
+        
         self.display_surf: pg.surface = pg.Surface((300, 400))
         self.display_surf.fill((247, 247, 247))
         self.list_directory()
     
+    def load_beat(self) -> None:
+        pass
+
     def handle_events(self) -> None:
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -125,19 +132,28 @@ class LoadPage(Page):
                 file_name, extension = os.path.splitext(file)
                 self.file_strings.append(file_name)       
         if len(self.file_strings) > 0:
-            self.file_surf: pg.surface = pg.Surface((300, 10 + 40 * len(self.file_strings)))
-            self.file_surf.fill((247, 247, 247))
+            self.create_file_surface()
+
+    def create_file_surface(self) -> None:
+            self.listed_files_surf: pg.surface = pg.Surface((300, 10 + 40 * len(self.file_strings)))
+            self.listed_files_surf.fill((247, 247, 247))
             for i, string in enumerate(self.file_strings):
-                text_to_blit = self.font.render(str(string), True, "black")
-                self.file_surf.blit(text_to_blit, (10, 10 + 40 * i))
-            self.display_surf.blit(self.file_surf, (0, 0))
+                self.file_buttons.append(FileButton(file_name=string, pos=(10, 10 + 40 * i), offset=(640, 160), rect_size=(280, 40)))            
 
     def check_collisions(self) -> None:
         if self.close_button.check_collision() or self.cancel_button.check_collision():
-            self.save_string = ""
             self.prog.state = "stop"
-        if self.load_button.check_collision() and len(self.save_string) > 0:
+        if self.load_button.check_collision():
             self.load_beat()
+        if len(self.file_strings) > 0:
+            for i, button in enumerate(self.file_buttons):
+                if button.check_collision():
+                    if button.is_active():
+                        self.active_one = i
+            if self.active_one != None:
+                for i, button in enumerate(self.file_buttons):
+                    if i != self.active_one:
+                        button.set_inactive()
 
     def update(self) -> None:
         self.handle_events()
@@ -151,11 +167,12 @@ class LoadPage(Page):
         self.close_button.render(self.surface)
         self.load_button.render(self.surface)
         self.cancel_button.render(self.surface)
-
+       
+        if len(self.file_strings) > 0:
+            for button in self.file_buttons:
+                button.render(self.listed_files_surf)
+        self.display_surf.blit(self.listed_files_surf, (0, 0))
         self.surface.blit(self.display_surf, (400, 100))
-        # pg.draw.rect(self.surface, (200, 200, 200), self.entry_rect, border_radius=3)
-        # pg.draw.rect(self.surface, "black", self.entry_rect, width=2, border_radius=3)     
-        
 
         surf.blit(self.surface, self.pos)
 
@@ -173,7 +190,6 @@ class ErrorPage:
         
         close_button_pos = (self.surface.get_width() - self.prog.images["close button"].get_width(), 0)
         self.close_button = WindowButton(prog=self.prog, button_type="close button", pos=close_button_pos, offset=(280, 224))
-        print(self.surface.get_size())
 
         self.font = pg.font.SysFont("arial", 32)
 
@@ -188,7 +204,7 @@ class ErrorPage:
         if self.close_button.check_collision():
             self.prog.save_page.error = False
 
-    def render(self, surf):
+    def render(self, surf) -> None:
         self.check_collisions()
         if self.error == "FileExistsError":
             self.surface.blit(self.prog.images["small window"], (0, 0))
