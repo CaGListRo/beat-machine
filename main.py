@@ -64,7 +64,7 @@ class BeatMachine:
         self.all_sound_names: list = ["clap/one", "crash/one", "hihat/one", "kick/one", "snare/one", "tom/one", 
                                       "clap/two", "crash/two", "hihat/two", "kick/two", "snare/two", "tom/two"]
         
-        self.sounds_to_use: list = ["clap/one", "snare/one", "kick/one", "tom/two"]
+        self.sounds_to_use: list = ["tom/one", "crash/one", "hihat/one", "tom/two"]
 
         self.sounds: dict = {
             "clap/one": load_sound(sound_name="clap1"),

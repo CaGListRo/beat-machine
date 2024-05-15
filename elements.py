@@ -17,6 +17,7 @@ class Button:
     def set_state(self, set_to) -> None:
         self.active = set_to
         self.state = "active" if set_to else "inactive"
+        self.image: pg.image = self.prog.images[self.button_type + "/" + self.state]
 
     def is_active(self) -> bool:
         return self.active

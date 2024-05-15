@@ -119,7 +119,26 @@ class LoadPage(Page):
         self.list_directory()
     
     def load_beat(self) -> None:
-        pass
+        file_to_load: str = "saved beats/" + str(self.file_strings[self.active_one]) + ".bmsf"
+        with open(file_to_load, "r") as file:
+            data = file.read()
+            data = data.split("\n")
+            self.prog.bpm = int(data[0])
+            tones = data[1].strip().split(",")
+            del tones[-1]
+            self.prog.sounds_to_use = [tone.strip() for tone in tones]
+            beat_button_list = []
+            for i in range(2, 6):
+                data[i] = data[i].strip().split(",")
+                del data[i][-1]
+                beat_button_list.append([state.strip() for state in data[i]])
+        for i, row in enumerate(beat_button_list):
+            for j, state in enumerate(row):
+                if state == "True":
+                    self.prog.beat_buttons[i][j].set_state(True)
+                if state == "False":
+                    self.prog.beat_buttons[i][j].set_state(False)
+        self.prog.state = "stop"
 
     def handle_events(self) -> None:
         for event in pg.event.get():
@@ -143,7 +162,7 @@ class LoadPage(Page):
     def check_collisions(self) -> None:
         if self.close_button.check_collision() or self.cancel_button.check_collision():
             self.prog.state = "stop"
-        if self.load_button.check_collision():
+        if self.load_button.check_collision() and self.active_one != None:
             self.load_beat()
         if len(self.file_strings) > 0:
             for i, button in enumerate(self.file_buttons):
