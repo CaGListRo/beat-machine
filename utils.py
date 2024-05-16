@@ -1,11 +1,11 @@
-from elements import Button, SlotLight, Slider
+from elements import Button, SlotLight, Slider, WindowButton, FileButton
 import pygame as pg
 
 
-def load_image(img_name: str) -> pg.Surface:
+def load_image(img_name: str) -> pg.surface:
     return pg.image.load("images/" + img_name + ".png")
 
-def scale_image(image: str, scalefactor: float) -> pg.Surface:
+def scale_image(image: str, scalefactor: float) -> pg.surface:
     return pg.transform.scale(image, (int(image.get_width() * scalefactor), int(image.get_height() * scalefactor)))
 
 def load_sound(sound_name: str) -> pg.mixer:
@@ -34,3 +34,15 @@ def create_sliders(program: object) -> list:
     for i in range(4):
         slider_list.append(Slider(program=program, min=75, max=190, current_value_in_percent=80, y_pos=163 + i * 97))
     return slider_list
+
+def create_sound_change_buttons(program: object, offset: tuple) -> list:
+    button_list = []
+    for i in range(4):
+        button_list.append(WindowButton(prog=program, button_type="change tone", pos=(13, 153 + i * 97), offset=offset))
+    return button_list
+
+def create_tone_surface(program: object, offset: tuple) -> pg.surface:
+    tone_surf: pg.surface = pg.Surface((250, 10 + 40 * len(program.all_sound_names)))
+    tone_surf.fill((247, 247, 247))
+    # for i, string in enumerate(program.all_sound_names):
+    #     file_buttons.append(FileButton(file_name=string, pos=(10, 10 + 40 * i), offset=offset, rect_size=(280, 40)))

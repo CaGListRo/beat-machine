@@ -1,4 +1,4 @@
-from utils import load_image, scale_image, load_sound, create_beat_button_pattern, create_slot_light_list, create_sliders
+from utils import load_image, scale_image, load_sound, create_beat_button_pattern, create_slot_light_list, create_sliders, create_sound_change_buttons
 from elements import Button, WindowButton
 from pages import SavePage, LoadPage
 
@@ -55,6 +55,7 @@ class BeatMachine:
             "load button": scale_image(load_image(img_name="button load"), scalefactor=0.4),
             "cancel button": scale_image(load_image(img_name="button cancel"), scalefactor=0.4),
             "close button": scale_image(load_image(img_name="button close"), scalefactor=0.3),
+            "change tone": scale_image(load_image(img_name="button change tone"), scalefactor=0.3)
         }
 
         self.body_surf = pg.Surface(self.images["body"].get_size())
@@ -89,6 +90,7 @@ class BeatMachine:
         self.beat_buttons: list = create_beat_button_pattern(self)
         self.slot_lights: list = create_slot_light_list(self)
         self.sliders: list = create_sliders(self)
+        self.sound_change_buttons: list = create_sound_change_buttons(self, offset=self.body_surf_pos)
 
         self.play_button: object = Button(prog=self, button_type="play", pos=(988, 31), activatable=True)
         self.pause_button: object = Button(prog=self, button_type="pause", pos=(931, 31), activatable=True)
@@ -213,6 +215,8 @@ class BeatMachine:
             light.render(self.body_surf)
         for slider in self.sliders:
             slider.render(self.body_surf)
+        for button in self.sound_change_buttons:
+            button.render(self.body_surf)
         self.play_button.render(self.body_surf)
         self.pause_button.render(self.body_surf)
         self.stop_button.render(self.body_surf)
@@ -235,7 +239,6 @@ class BeatMachine:
 
         for i, sound_name in enumerate(self.sounds_to_use):
             text_to_blit = self.sounds_font.render(sound_name, True, "black")
-            text_to_blit = pg.transform.rotate(text_to_blit, 45)
             self.body_surf.blit(text_to_blit, (5, 120 + i * 97))
         self.main_window.blit(self.body_surf, self.body_surf_pos)
 
