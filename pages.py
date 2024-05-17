@@ -237,4 +237,64 @@ class ErrorPage:
         self.close_button.render(self.surface)
         surf.blit(self.surface, (surf.get_width() // 2 - self.prog.images["small window"].get_width() // 2, 
                       surf.get_height() // 2 - self.prog.images["small window"].get_height() // 2))
+
+
+class SoundSelectPage:
+    def __init__(self, program: object) -> None:
+        self.prog: object = program
+        self.tone_surf: pg.surface = pg.Surface((250, 50 + 40 * len(self.prog.all_sound_names)))
+        self.tone_surf.fill((247, 247, 247))
+        self.sound_file_buttons: list = []
+        self.collision_rects: list = []
+        self.active_one: int = None
+
+        close_button_pos = (self.tone_surf.get_width() // 2 + 5, self.tone_surf.get_height() - self.prog.images["close button"].get_height())
+        self.close_button = WindowButton(prog=self.prog, button_type="close button", pos=close_button_pos, offset=(280, 224))
+        accept_button_pos = (self.tone_surf.get_width() // 2 - self.prog.images["accept button"].get_width() - 5, self.tone_surf.get_height() - self.prog.images["accept button"].get_height())
+        self.accept_button = WindowButton(prog=self.prog, button_type="accept button", pos=accept_button_pos, offset=(280, 224))
+    
+    def handle_events(self) -> None:
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                self.run = False
+
+    def create_sound_buttons(self) -> None:
+        for i, soundname in enumerate(self.prog.all_sound_names):
+            self.sound_file_buttons.append(FileButton(file_name=soundname, pos=(10, 10 + 40 * i), offset=(0, 0), rect_size=(240, 40)))            
+
+    def check_collisions(self) -> None:
+        if self.close_button.check_collision():
+            self.prog.state = "stop"
+        if self.accept_button.check_collision():
+            if self.active_one != None:
+                self.prog.sounds_to_use[self.prog.sound_slot_to_change] = self.prog.all_sound_names[self.active_one]
+                self.active_one = None
+            self.prog.sound_slot_to_change = None
+            self.prog.state = "stop"
+
+        for i, button in enumerate(self.sound_file_buttons):
+            if button.check_collision():
+                if button.is_active():
+                    self.active_one = i
+        if self.active_one != None:
+            for i, button in enumerate(self.sound_file_buttons):
+                if i != self.active_one:
+                    button.set_inactive()
+
+    def update(self) -> None:
+        self.handle_events()
+        self.check_collisions()
+
+    def render(self, surf) -> None: 
+        self.accept_button.render(self.tone_surf)
+        self.close_button.render(self.tone_surf)     
+
+        for button in self.sound_file_buttons:
+            button.render(self.tone_surf)
+
+        surf.blit(self.tone_surf, (0, 0))
         
+
+
+
+    

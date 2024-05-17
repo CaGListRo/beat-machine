@@ -1,6 +1,6 @@
 from utils import load_image, scale_image, load_sound, create_beat_button_pattern, create_slot_light_list, create_sliders, create_sound_change_buttons
 from elements import Button, WindowButton
-from pages import SavePage, LoadPage
+from pages import SavePage, LoadPage, SoundSelectPage
 
 import pygame as pg
 from time import time
@@ -55,17 +55,13 @@ class BeatMachine:
             "load button": scale_image(load_image(img_name="button load"), scalefactor=0.4),
             "cancel button": scale_image(load_image(img_name="button cancel"), scalefactor=0.4),
             "close button": scale_image(load_image(img_name="button close"), scalefactor=0.3),
+            "accept button": scale_image(load_image(img_name="button accept"), scalefactor=0.3),
             "change tone": scale_image(load_image(img_name="button change tone"), scalefactor=0.3)
         }
 
         self.body_surf = pg.Surface(self.images["body"].get_size())
         self.body_surf_pos: tuple = (self.main_window.get_width() - self.body_surf.get_width() - 23, 
                                      self.main_window.get_height() - self.body_surf.get_height() - 23)
-
-        self.all_sound_names: list = ["clap/one", "crash/one", "hihat/one", "kick/one", "snare/one", "tom/one", 
-                                      "clap/two", "crash/two", "hihat/two", "kick/two", "snare/two", "tom/two"]
-        
-        self.sounds_to_use: list = ["tom/one", "crash/one", "hihat/one", "tom/two"]
 
         self.sounds: dict = {
             "clap/one": load_sound(sound_name="clap1"),
@@ -82,6 +78,11 @@ class BeatMachine:
             "tom/two": load_sound(sound_name="tom2"),
         }
 
+        self.all_sound_names: list = ["clap/one", "crash/one", "hihat/one", "kick/one", "snare/one", "tom/one", 
+                                      "clap/two", "crash/two", "hihat/two", "kick/two", "snare/two", "tom/two"]
+        self.sounds_to_use: list = ["tom/one", "crash/one", "hihat/one", "tom/two"]
+        
+
         self.channels: list = [self.sounds[self.sounds_to_use[0]], 
                                self.sounds[self.sounds_to_use[1]], 
                                self.sounds[self.sounds_to_use[2]], 
@@ -91,6 +92,8 @@ class BeatMachine:
         self.slot_lights: list = create_slot_light_list(self)
         self.sliders: list = create_sliders(self)
         self.sound_change_buttons: list = create_sound_change_buttons(self, offset=self.body_surf_pos)
+        self.sound_slot_to_change: int = None
+        self.sound_change_page: object = SoundSelectPage(self)
 
         self.play_button: object = Button(prog=self, button_type="play", pos=(988, 31), activatable=True)
         self.pause_button: object = Button(prog=self, button_type="pause", pos=(931, 31), activatable=True)
@@ -164,43 +167,49 @@ class BeatMachine:
             slider.check_collision()
 
     def check_button_collisions(self) -> None:
-        for button_list in self.beat_buttons:
-            for btn in button_list:
-                btn.check_collision()
+        if self.state != "save" and self.state != "load" and self.state != "change sound":
+            for button_list in self.beat_buttons:
+                for btn in button_list:
+                    btn.check_collision()
 
-        if self.play_button.check_collision():
-            if self.pause_button.is_active(): self.pause_button.switch_state()
-            if self.stop_button.is_active(): self.stop_button.switch_state()
-            self.state = "play"
+            if self.play_button.check_collision():
+                if self.pause_button.is_active(): self.pause_button.switch_state()
+                if self.stop_button.is_active(): self.stop_button.switch_state()
+                self.state = "play"
 
-        if self.pause_button.check_collision():
-            if self.play_button.is_active(): self.play_button.switch_state()
-            if self.stop_button.is_active(): self.stop_button.switch_state()
-            self.state = "pause"
+            if self.pause_button.check_collision():
+                if self.play_button.is_active(): self.play_button.switch_state()
+                if self.stop_button.is_active(): self.stop_button.switch_state()
+                self.state = "pause"
 
-        if self.stop_button.check_collision():
-            if self.pause_button.is_active(): self.pause_button.switch_state()
-            if self.play_button.is_active(): self.play_button.switch_state()
-            self.state = "stop"
-            self.active_instrument_slot = -1
-            self.beat_time: float = 60
+            if self.stop_button.check_collision():
+                if self.pause_button.is_active(): self.pause_button.switch_state()
+                if self.play_button.is_active(): self.play_button.switch_state()
+                self.state = "stop"
+                self.active_instrument_slot = -1
+                self.beat_time: float = 60
 
-        if self.bpm_minus_ten_button.check_collision():
-            if self.bpm >= 11:
-                self.bpm -= 10
-        if self.bpm_minus_one_button.check_collision():
-            if self.bpm >= 2:
-                self.bpm -= 1
-        if self.bpm_plus_ten_button.check_collision(): self.bpm += 10
-        if self.bpm_plus_one_button.check_collision(): self.bpm += 1
+            if self.bpm_minus_ten_button.check_collision():
+                if self.bpm >= 11:
+                    self.bpm -= 10
+            if self.bpm_minus_one_button.check_collision():
+                if self.bpm >= 2:
+                    self.bpm -= 1
+            if self.bpm_plus_ten_button.check_collision(): self.bpm += 10
+            if self.bpm_plus_one_button.check_collision(): self.bpm += 1
 
-        if self.save_button.check_collision():
-            self.state = "save"
-            self.save_page: object = SavePage(self)
-        
-        if self.load_button.check_collision():
-            self.state = "save"
-            self.save_page: object = LoadPage(self)
+            if self.save_button.check_collision():
+                self.state = "save"
+                self.save_page: object = SavePage(self)
+            
+            if self.load_button.check_collision():
+                self.state = "load"
+                self.load_page: object = LoadPage(self)
+
+            for i, button in enumerate(self.sound_change_buttons):
+                if button.check_collision():
+                    self.state = "change sound"
+                    self.sound_slot_to_change = i
             
     def handle_events(self) -> None:
         for event in pg.event.get():
@@ -244,6 +253,10 @@ class BeatMachine:
 
         if self.state == "save":
             self.save_page.render(self.main_window)
+        if self.state == "load":
+            self.load_page.render(self.main_window)
+        if self.state == "change sound":
+            self.sound_change_page.render(self.main_window)
         
         pg.display.update()
 
@@ -267,6 +280,10 @@ class BeatMachine:
                     self.slot_shifter()
             elif self.state == "save":
                 self.save_page.update()
+            elif self.state == "load":
+                self.load_page.update()
+            elif self.state == "change sound":
+                self.sound_change_page.update()
 
             self.handle_events()
 

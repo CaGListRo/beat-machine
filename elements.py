@@ -128,7 +128,7 @@ class FileButton:
         self.file_name: str = str(file_name)
         self.font = pg.font.SysFont("arial", 32)      
 
-        self.rect_colors: dict = {"inactive": "white", "hover": "lightgray", "active": "black"}
+        self.rect_colors: dict = {"inactive": (247, 247, 247), "hover": "lightgray", "active": "black"}
         self.text_colors: dict = {"inactive": "black", "hover": "black", "active": "white"} 
 
         rect_pos: tuple = (pos[0] + offset[0], pos[1] + offset[1])

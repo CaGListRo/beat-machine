@@ -42,7 +42,6 @@ def create_sound_change_buttons(program: object, offset: tuple) -> list:
     return button_list
 
 def create_tone_surface(program: object, offset: tuple) -> pg.surface:
-    tone_surf: pg.surface = pg.Surface((250, 10 + 40 * len(program.all_sound_names)))
-    tone_surf.fill((247, 247, 247))
+    pass
     # for i, string in enumerate(program.all_sound_names):
     #     file_buttons.append(FileButton(file_name=string, pos=(10, 10 + 40 * i), offset=offset, rect_size=(280, 40)))
