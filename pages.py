@@ -248,10 +248,11 @@ class SoundSelectPage:
         self.collision_rects: list = []
         self.active_one: int = None
 
-        close_button_pos = (self.tone_surf.get_width() // 2 + 5, self.tone_surf.get_height() - self.prog.images["close button"].get_height())
-        self.close_button = WindowButton(prog=self.prog, button_type="close button", pos=close_button_pos, offset=(280, 224))
+        self.close_button_pos = (self.tone_surf.get_width() // 2 + 5, self.tone_surf.get_height() - self.prog.images["close button"].get_height())
+        self.close_button = WindowButton(prog=self.prog, button_type="close button", pos=self.close_button_pos, offset=(0, 0))
         accept_button_pos = (self.tone_surf.get_width() // 2 - self.prog.images["accept button"].get_width() - 5, self.tone_surf.get_height() - self.prog.images["accept button"].get_height())
-        self.accept_button = WindowButton(prog=self.prog, button_type="accept button", pos=accept_button_pos, offset=(280, 224))
+        self.accept_button = WindowButton(prog=self.prog, button_type="accept button", pos=accept_button_pos, offset=(0, 0))
+        self.create_sound_buttons()
     
     def handle_events(self) -> None:
         for event in pg.event.get():
@@ -268,6 +269,7 @@ class SoundSelectPage:
         if self.accept_button.check_collision():
             if self.active_one != None:
                 self.prog.sounds_to_use[self.prog.sound_slot_to_change] = self.prog.all_sound_names[self.active_one]
+                self.prog.channels[self.prog.sound_slot_to_change] =self.prog.sounds[self.prog.sounds_to_use[self.prog.sound_slot_to_change]]
                 self.active_one = None
             self.prog.sound_slot_to_change = None
             self.prog.state = "stop"
@@ -286,11 +288,11 @@ class SoundSelectPage:
         self.check_collisions()
 
     def render(self, surf) -> None: 
-        self.accept_button.render(self.tone_surf)
-        self.close_button.render(self.tone_surf)     
-
         for button in self.sound_file_buttons:
             button.render(self.tone_surf)
+
+        self.accept_button.render(self.tone_surf)
+        self.close_button.render(self.tone_surf)
 
         surf.blit(self.tone_surf, (0, 0))
         

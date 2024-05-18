@@ -163,8 +163,9 @@ class BeatMachine:
                 self.channels[i].set_volume(0)
                     
     def check_slider_collisions(self) -> None:
-        for slider in self.sliders:
-            slider.check_collision()
+        if self.state != "save" and self.state != "load" and self.state != "change sound":
+            for slider in self.sliders:
+                slider.check_collision()
 
     def check_button_collisions(self) -> None:
         if self.state != "save" and self.state != "load" and self.state != "change sound":
@@ -260,9 +261,11 @@ class BeatMachine:
         
         pg.display.update()
 
-    def main(self) -> None:   
+    def main(self) -> None:
+        print(self.state)  
         while self.run:
-            if self.state != "save" and self.state != "load":
+            old_state = self.state
+            if self.state != "save" and self.state != "load" and self.state != "change sound":
                 self.calculate_delta_time()
                 self.calculate_fps()
                 self.beat_duration = self.calculate_beat_times()
@@ -288,6 +291,10 @@ class BeatMachine:
             self.handle_events()
 
             self.draw_window()
+             
+
+            if old_state != self.state:
+                print(self.state) 
 
         pg.quit()
 
