@@ -127,6 +127,8 @@ class LoadPage(Page):
             tones = data[1].strip().split(",")
             del tones[-1]
             self.prog.sounds_to_use = [tone.strip() for tone in tones]
+            for i in range(4):
+                self.prog.channels[i] = self.prog.sounds[self.prog.sounds_to_use[i]]
             beat_button_list = []
             for i in range(2, 6):
                 data[i] = data[i].strip().split(",")
@@ -269,7 +271,7 @@ class SoundSelectPage:
         if self.accept_button.check_collision():
             if self.active_one != None:
                 self.prog.sounds_to_use[self.prog.sound_slot_to_change] = self.prog.all_sound_names[self.active_one]
-                self.prog.channels[self.prog.sound_slot_to_change] =self.prog.sounds[self.prog.sounds_to_use[self.prog.sound_slot_to_change]]
+                self.prog.channels[self.prog.sound_slot_to_change] = self.prog.sounds[self.prog.sounds_to_use[self.prog.sound_slot_to_change]]
                 self.active_one = None
             self.prog.sound_slot_to_change = None
             self.prog.state = "stop"
