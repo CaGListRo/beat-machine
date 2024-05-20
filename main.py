@@ -50,6 +50,7 @@ class BeatMachine:
             "slot light/inactive": scale_image(load_image(img_name="slot indicator inactive"), scalefactor=0.36),
             "display_glas": scale_image(load_image(img_name="display glas"), scalefactor=0.44),
             "window": load_image(img_name="window"),
+            "button file list up down": scale_image(load_image(img_name="button file list up down"), scalefactor=0.5),          
             "small window": scale_image(load_image(img_name="small window"), scalefactor=0.9),
             "save button": scale_image(load_image(img_name="button save"), scalefactor=0.4),
             "load button": scale_image(load_image(img_name="button load"), scalefactor=0.4),
