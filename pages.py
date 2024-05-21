@@ -113,8 +113,9 @@ class LoadPage(Page):
         self.file_buttons: list = []
         self.collision_rects: list = []
         self.active_one: int = None
-        self.surf_difference: int = None
+        self.surf_difference: int = 0
         self.scroll_offset: int = 0
+        self.old_offset: int = self.scroll_offset
         
         self.display_surf: pg.surface = pg.Surface((300, 400))
         self.display_surf.fill((247, 247, 247))
@@ -148,19 +149,14 @@ class LoadPage(Page):
         for event in pg.event.get():
             if event.type == pg.QUIT:
                 self.run = False
-            if self.surf_difference != None:
+            if self.surf_difference > 0:
                 if event.type == pg.MOUSEBUTTONDOWN:
                     if event.button == 4:
                         if self.scroll_offset > 0:
-                            self.scroll_offset += 20
-                        else:
-                            self.scroll_offset = 0
+                            self.scroll_offset -= 20
                     if event.button == 5:
                         if self.scroll_offset < self.surf_difference:
-                            self.scroll_offset -= 20
-                        else:
-                            self.scroll_offset = self.surf_difference
-
+                            self.scroll_offset += 20
 
     def list_directory(self) -> None:
         for file in os.listdir(self.PATH):
@@ -195,6 +191,17 @@ class LoadPage(Page):
 
     def update(self) -> None:
         self.handle_events()
+        if self.scroll_offset < 0:
+            self.scroll_offset = 0
+        if self.scroll_offset > self.surf_difference:                 
+            self.scroll_offset = self.surf_difference
+
+        if self.old_offset != self.scroll_offset:
+            print(self.scroll_offset)
+            for button in self.file_buttons:
+                button.update_offset(scroll_offset=self.scroll_offset)
+                pg.display.flip()
+        self.old_offset = self.scroll_offset
         self.check_collisions()
 
     def render(self, surf) -> None:
@@ -209,7 +216,7 @@ class LoadPage(Page):
         if len(self.file_strings) > 0:
             for button in self.file_buttons:
                 button.render(self.listed_files_surf)
-        self.display_surf.blit(self.listed_files_surf, (0, 0 + self.scroll_offset))
+        self.display_surf.blit(self.listed_files_surf, (0, 0 - self.scroll_offset))
         self.surface.blit(self.display_surf, (400, 100))
 
         surf.blit(self.surface, self.pos)
