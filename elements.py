@@ -145,7 +145,7 @@ class FileButton:
     
     def update_offset(self, scroll_offset):
         self.rect[1] = self.rect[1] - scroll_offset
-        # self.offset = (self.offset[0], self.offset[1] - scroll_offset)
+        self.offset = (self.offset[0], self.offset[1] - scroll_offset)
     
     def check_collision(self) -> bool:
         mouse_pos = pg.mouse.get_pos()

@@ -199,7 +199,7 @@ class LoadPage(Page):
         if self.old_offset != self.scroll_offset:
             print(self.scroll_offset)
             for button in self.file_buttons:
-                button.update_offset(scroll_offset=self.scroll_offset)
+                button.update_offset(scroll_offset=self.scroll_offset - self.old_offset)
                 pg.display.flip()
         self.old_offset = self.scroll_offset
         self.check_collisions()
