@@ -63,7 +63,7 @@ class Slider:
         if self.rect.collidepoint(mouse_pos):
             self.collide = True
         if pg.mouse.get_pressed()[0] and self.collide:
-            self.pos[0] = mouse_pos[0] - self.prog.body_surf_pos[0] - self.image.get_width() // 2  # Anpassung hier
+            self.pos[0] = mouse_pos[0] - self.prog.body_surf_pos[0] - self.image.get_width() // 2
             if self.pos[0] < self.min:
                 self.pos[0] = self.min
             elif self.pos[0] > self.max - self.image.get_width() // 2:
@@ -99,7 +99,7 @@ class SlotLight:
 
 
 class WindowButton:
-    def __init__(self, prog: object, button_type: str, pos: tuple, offset: tuple) -> None:
+    def __init__(self, prog: object, button_type: str, pos: tuple, offset: tuple, rotate: bool=False) -> None:
         self.prog: object = prog
         self.button_type: str = button_type
         self.pos: tuple = pos     
@@ -107,6 +107,8 @@ class WindowButton:
         rect_pos: tuple = (self.pos[0] + offset[0], self.pos[1] + offset[1])
         self.rect: pg.rect = self.image.get_rect(topleft=rect_pos)
         self.clicked: bool = False
+        if rotate:
+            self.image = pg.transform.rotate(self.image, 180)
     
     def check_collision(self) -> bool:
         mouse_pos = pg.mouse.get_pos()
@@ -168,4 +170,5 @@ class FileButton:
         pg.draw.rect(surf, self.rect_colors[self.state], (position, (self.rect[2], self.rect[3])))
         text_to_blit = self.font.render(self.file_name, True, self.text_colors[self.state])
         surf.blit(text_to_blit, position)
-        
+
+

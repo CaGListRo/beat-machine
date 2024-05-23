@@ -39,7 +39,7 @@ class SavePage(Page):
     def handle_events(self) -> None:
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                self.run = False
+                pass  # Message for first closing the other window?
 
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_BACKSPACE:
@@ -148,7 +148,8 @@ class LoadPage(Page):
     def handle_events(self) -> None:
         for event in pg.event.get():
             if event.type == pg.QUIT:
-                self.run = False
+                pass  # Message for first closing the other window?
+
             if self.surf_difference > 0:
                 if event.type == pg.MOUSEBUTTONDOWN:
                     if event.button == 4:
@@ -169,10 +170,15 @@ class LoadPage(Page):
     def create_file_surface(self) -> None:
             self.listed_files_surf: pg.surface = pg.Surface((300, 10 + 40 * len(self.file_strings)))
             self.listed_files_surf.fill((247, 247, 247))
-            for i, string in enumerate(self.file_strings):
-                self.file_buttons.append(FileButton(file_name=string, pos=(10, 10 + 40 * i), offset=(640, 160), rect_size=(280, 40)))
+            
             if self.listed_files_surf.get_height() > self.display_surf.get_height():
                 self.surf_difference = self.listed_files_surf.get_height() - self.display_surf.get_height()
+            if self.surf_difference > 0:
+                self.file_up_button = WindowButton(prog=self.prog, button_type="button file list up down", pos=(270, 0), offset=(640, 160))
+                self.file_down_button = WindowButton(prog=self.prog, button_type="button file list up down", pos=(270, 370), offset=(640, 160), rotate=True)
+            rect_width = 250 if self.surf_difference > 0 else 280
+            for i, string in enumerate(self.file_strings):
+                self.file_buttons.append(FileButton(file_name=string, pos=(10, 10 + 40 * i), offset=(640, 160), rect_size=(rect_width, 40)))
 
     def check_collisions(self) -> None:
         if self.close_button.check_collision() or self.cancel_button.check_collision():
@@ -188,6 +194,14 @@ class LoadPage(Page):
                 for i, button in enumerate(self.file_buttons):
                     if i != self.active_one:
                         button.set_inactive()
+        if self.surf_difference > 0:
+            if self.file_up_button.check_collision():
+                if self.scroll_offset > 0:
+                    self.scroll_offset -= 20
+                        
+            if self.file_down_button.check_collision():
+                if self.scroll_offset < self.surf_difference:
+                    self.scroll_offset += 20
 
     def update(self) -> None:
         self.handle_events()
@@ -197,11 +211,10 @@ class LoadPage(Page):
             self.scroll_offset = self.surf_difference
 
         if self.old_offset != self.scroll_offset:
-            print(self.scroll_offset)
             for button in self.file_buttons:
                 button.update_offset(scroll_offset=self.scroll_offset - self.old_offset)
-                pg.display.flip()
         self.old_offset = self.scroll_offset
+        
         self.check_collisions()
 
     def render(self, surf) -> None:
@@ -217,6 +230,12 @@ class LoadPage(Page):
             for button in self.file_buttons:
                 button.render(self.listed_files_surf)
         self.display_surf.blit(self.listed_files_surf, (0, 0 - self.scroll_offset))
+        
+        if self.surf_difference > 0:
+            pg.draw.rect(self.display_surf, (220, 220, 220), (270, 30, 30, 340))
+            self.file_up_button.render(self.display_surf)
+            self.file_down_button.render(self.display_surf)
+
         self.surface.blit(self.display_surf, (400, 100))
 
         surf.blit(self.surface, self.pos)
