@@ -1,4 +1,4 @@
-from elements import WindowButton, FileButton
+from elements import WindowButton, FileButton, FileSlider
 
 import pygame as pg
 import os
@@ -106,7 +106,7 @@ class LoadPage(Page):
         super().__init__(program=program)
         self.load_button: object = WindowButton(prog=self.prog, button_type="load button", pos=(100, 150), offset=(240, 60))
         self.cancel_button: object = WindowButton(prog=self.prog, button_type="cancel button", pos=(100, 350), offset=(240, 60))
-        header_text: str = "Load beat."
+        header_text: str = "Load beat"
         self.header_text_to_blit: pg.surface = self.header_font.render(header_text, True, "black")
         self.header_text_pos: tuple = (self.surface.get_width() // 2 - self.header_text_to_blit.get_width() // 2, 20)
         self.file_strings: list = []
@@ -176,6 +176,8 @@ class LoadPage(Page):
             if self.surf_difference > 0:
                 self.file_up_button = WindowButton(prog=self.prog, button_type="button file list up down", pos=(270, 0), offset=(640, 160))
                 self.file_down_button = WindowButton(prog=self.prog, button_type="button file list up down", pos=(270, 370), offset=(640, 160), rotate=True)
+                slider_height = 340 * self.display_surf.get_height() / self.listed_files_surf.get_height()
+                self.file_slider = FileSlider(program=self.prog, pos=(270, 30), max=370, height=slider_height, offset=(640, 160))
             rect_width = 250 if self.surf_difference > 0 else 280
             for i, string in enumerate(self.file_strings):
                 self.file_buttons.append(FileButton(file_name=string, pos=(10, 10 + 40 * i), offset=(640, 160), rect_size=(rect_width, 40)))
@@ -232,9 +234,10 @@ class LoadPage(Page):
         self.display_surf.blit(self.listed_files_surf, (0, 0 - self.scroll_offset))
         
         if self.surf_difference > 0:
-            pg.draw.rect(self.display_surf, (220, 220, 220), (270, 30, 30, 340))
+            pg.draw.rect(self.display_surf, (230, 230, 230), (270, 30, 30, 340))
             self.file_up_button.render(self.display_surf)
             self.file_down_button.render(self.display_surf)
+            self.file_slider.render(self.display_surf)
 
         self.surface.blit(self.display_surf, (400, 100))
 

@@ -172,3 +172,40 @@ class FileButton:
         surf.blit(text_to_blit, position)
 
 
+class FileSlider:
+    def __init__(self, program: object, pos: tuple, max: int, height: int, offset: tuple) -> None:
+        self.prog: object = program
+        self.pos: list = list(pos)
+        self.min: int = self.pos[1]
+        self.max: int = max
+        self.range: int = self.max - self.min
+        self.height: int = height
+        self.offset: tuple = offset
+        self.slider: pg.surface = pg.Surface((30, self.height))
+        self.slider.fill((180, 180, 180))
+        pg.draw.rect(self.slider, (220, 220, 220), (0, 0, 30, self.height), width=2)
+        self.rect: pg.rect = self.slider.get_rect(topleft=(self.pos))
+        self.collide: bool = False
+
+    def check_collision(self) -> None:
+        mouse_pos = pg.mouse.get_pos()
+        if self.rect.collidepoint(mouse_pos):
+            self.collide = True
+        if pg.mouse.get_pressed()[0] and self.collide:
+            click_offset: int = mouse_pos[1] - self.pos[1]
+            self.pos[1] = mouse_pos[1] - click_offset
+            if self.pos[1] < self.min:
+                self.pos[1] = self.min
+            elif self.pos[1] > self.max - self.image.get_width() // 2:
+                self.pos[1] = self.max - self.image.get_width() // 2
+            self.rect.topleft = (self.pos[0] + self.offset[0], self.pos[1] + self.offset[1])
+            self.val = (self.pos[0] - self.min) / self.range
+        if not pg.mouse.get_pressed()[0]:
+            self.collide = False
+            self.rect.topleft = (self.pos[0] + self.offset[0], self.pos[1] + self.offset[1])
+
+    def get_value(self) -> float:
+        return round(self.val, 2)
+
+    def render(self, surf: pg.surface) -> None:
+        surf.blit(self.slider, self.pos)
