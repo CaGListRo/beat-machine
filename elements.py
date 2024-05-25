@@ -178,13 +178,14 @@ class FileSlider:
         self.pos: list = list(pos)
         self.min: int = self.pos[1]
         self.max: int = max
-        self.range: int = self.max - self.min
         self.height: int = height
+        self.range: int = self.max - self.min - self.height
+        self.val: float = (self.pos[1] - self.min) / self.range
         self.offset: tuple = offset
         self.slider: pg.surface = pg.Surface((30, self.height))
         self.slider.fill((180, 180, 180))
-        pg.draw.rect(self.slider, (220, 220, 220), (0, 0, 30, self.height), width=2)
-        self.rect: pg.rect = self.slider.get_rect(topleft=(self.pos))
+        pg.draw.rect(self.slider, (150, 150, 150), (0, 0, 30, self.height), width=1)
+        self.rect: pg.rect = pg.Rect(self.offset, (30, self.height))
         self.collide: bool = False
 
     def check_collision(self) -> None:
@@ -192,12 +193,13 @@ class FileSlider:
         if self.rect.collidepoint(mouse_pos):
             self.collide = True
         if pg.mouse.get_pressed()[0] and self.collide:
-            click_offset: int = mouse_pos[1] - self.pos[1]
+            click_offset: int = mouse_pos[1] - self.pos[1] - self.offset[1]
             self.pos[1] = mouse_pos[1] - click_offset
             if self.pos[1] < self.min:
                 self.pos[1] = self.min
-            elif self.pos[1] > self.max - self.image.get_width() // 2:
-                self.pos[1] = self.max - self.image.get_width() // 2
+            elif self.pos[1] > self.max - self.height:
+                self.pos[1] = self.max - self.height
+            print(mouse_pos, self.pos, self.rect, self.val)
             self.rect.topleft = (self.pos[0] + self.offset[0], self.pos[1] + self.offset[1])
             self.val = (self.pos[0] - self.min) / self.range
         if not pg.mouse.get_pressed()[0]:
@@ -205,7 +207,7 @@ class FileSlider:
             self.rect.topleft = (self.pos[0] + self.offset[0], self.pos[1] + self.offset[1])
 
     def get_value(self) -> float:
-        return round(self.val, 2)
+        return self.val
 
     def render(self, surf: pg.surface) -> None:
         surf.blit(self.slider, self.pos)

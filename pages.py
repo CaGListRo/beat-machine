@@ -205,6 +205,9 @@ class LoadPage(Page):
                 if self.scroll_offset < self.surf_difference:
                     self.scroll_offset += 20
 
+            if self.file_slider.check_collision():
+                self.scroll_offset = self.file_slider.get_value() * self.surf_difference
+
     def update(self) -> None:
         self.handle_events()
         if self.scroll_offset < 0:
