@@ -177,7 +177,7 @@ class LoadPage(Page):
                 self.file_up_button = WindowButton(prog=self.prog, button_type="button file list up down", pos=(270, 0), offset=(640, 160))
                 self.file_down_button = WindowButton(prog=self.prog, button_type="button file list up down", pos=(270, 370), offset=(640, 160), rotate=True)
                 slider_height = 340 * self.display_surf.get_height() / self.listed_files_surf.get_height()
-                self.file_slider = FileSlider(program=self.prog, pos=(270, 30), max=370, height=slider_height, offset=(640, 160))
+                self.file_slider = FileSlider(program=self.prog, pos=(270, 30), max_pos=370, height=slider_height, offset=(640, 160))
             rect_width = 250 if self.surf_difference > 0 else 280
             for i, string in enumerate(self.file_strings):
                 self.file_buttons.append(FileButton(file_name=string, pos=(10, 10 + 40 * i), offset=(640, 160), rect_size=(rect_width, 40)))
@@ -207,6 +207,7 @@ class LoadPage(Page):
 
             if self.file_slider.check_collision():
                 self.scroll_offset = self.file_slider.get_value() * self.surf_difference
+                
 
     def update(self) -> None:
         self.handle_events()
@@ -245,6 +246,8 @@ class LoadPage(Page):
         self.surface.blit(self.display_surf, (400, 100))
 
         surf.blit(self.surface, self.pos)
+        # pg.draw.line(self.prog.main_window, "red", (0, 190), (910, 190), width=2)
+        # pg.draw.line(self.prog.main_window, "red", (910, 0), (910, 190), width=2)
 
 
 class ErrorPage:

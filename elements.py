@@ -173,11 +173,11 @@ class FileButton:
 
 
 class FileSlider:
-    def __init__(self, program: object, pos: tuple, max: int, height: int, offset: tuple) -> None:
+    def __init__(self, program: object, pos: tuple, max_pos: int, height: int, offset: tuple) -> None:
         self.prog: object = program
         self.pos: list = list(pos)
         self.min: int = self.pos[1]
-        self.max: int = max
+        self.max: int = max_pos
         self.height: int = height
         self.range: int = self.max - self.min - self.height
         self.val: float = (self.pos[1] - self.min) / self.range
@@ -187,23 +187,31 @@ class FileSlider:
         pg.draw.rect(self.slider, (150, 150, 150), (0, 0, 30, self.height), width=1)
         self.rect: pg.rect = pg.Rect(self.offset, (30, self.height))
         self.collide: bool = False
+        self.click_offset = 0
 
     def check_collision(self) -> None:
         mouse_pos = pg.mouse.get_pos()
-        if self.rect.collidepoint(mouse_pos):
-            self.collide = True
-        if pg.mouse.get_pressed()[0] and self.collide:
-            click_offset: int = mouse_pos[1] - self.pos[1] - self.offset[1]
-            self.pos[1] = mouse_pos[1] - click_offset
-            if self.pos[1] < self.min:
-                self.pos[1] = self.min
-            elif self.pos[1] > self.max - self.height:
-                self.pos[1] = self.max - self.height
-            print(mouse_pos, self.pos, self.rect, self.val)
-            self.rect.topleft = (self.pos[0] + self.offset[0], self.pos[1] + self.offset[1])
-            self.val = (self.pos[0] - self.min) / self.range
-        if not pg.mouse.get_pressed()[0]:
-            self.collide = False
+        self.collide = self.rect.collidepoint(mouse_pos)
+
+        if pg.mouse.get_pressed()[0]:  
+            if self.collide and self.click_offset == 0:
+                self.click_offset = mouse_pos[1] - self.rect.top
+
+            if self.click_offset != 0:
+                new_y_pos = mouse_pos[1] - self.click_offset
+
+                if new_y_pos < self.min:
+                    new_y_pos = self.min
+                if new_y_pos > self.max - self.height:
+                    new_y_pos = self.max - self.height
+
+                self.pos[1] = new_y_pos
+                self.rect.topleft = (self.pos[0] + self.offset[0], self.pos[1] + self.offset[1])
+                self.val = (self.pos[1] - self.min) / self.range
+                print(f"Value: {self.val}, Slider Pos: {self.pos}")
+
+        else:
+            self.click_offset = 0
             self.rect.topleft = (self.pos[0] + self.offset[0], self.pos[1] + self.offset[1])
 
     def get_value(self) -> float:
@@ -211,3 +219,4 @@ class FileSlider:
 
     def render(self, surf: pg.surface) -> None:
         surf.blit(self.slider, self.pos)
+        # pg.draw.rect(self.prog.main_window, "red", self.rect)
