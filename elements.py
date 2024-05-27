@@ -60,8 +60,8 @@ class Slider:
 
     def check_collision(self) -> None:
         mouse_pos = pg.mouse.get_pos()
-        if self.rect.collidepoint(mouse_pos):
-            self.collide = True
+        self.collide = self.rect.collidepoint(mouse_pos)
+
         if pg.mouse.get_pressed()[0] and self.collide:
             self.pos[0] = mouse_pos[0] - self.prog.body_surf_pos[0] - self.image.get_width() // 2
             if self.pos[0] < self.min:
@@ -198,21 +198,18 @@ class FileSlider:
                 self.click_offset = mouse_pos[1] - self.rect.top
 
             if self.click_offset != 0:
-                new_y_pos = mouse_pos[1] - self.click_offset
-
-                if new_y_pos < self.min:
-                    new_y_pos = self.min
-                if new_y_pos > self.max - self.height:
-                    new_y_pos = self.max - self.height
-
-                self.pos[1] = new_y_pos
+                self.pos[1] = mouse_pos[1] - self.click_offset
+                if self.pos[1] < self.min:
+                    self.pos[1] = self.min
+                if self.pos[1] > self.max - self.height:
+                    self.pos[1] = self.max - self.height
                 self.rect.topleft = (self.pos[0] + self.offset[0], self.pos[1] + self.offset[1])
                 self.val = (self.pos[1] - self.min) / self.range
-                print(f"Value: {self.val}, Slider Pos: {self.pos}")
-
+                print(f"nValue: {self.val}, nSlider Pos: {self.pos}, rect: {self.rect}, click_offset: {self.click_offset}")
         else:
             self.click_offset = 0
             self.rect.topleft = (self.pos[0] + self.offset[0], self.pos[1] + self.offset[1])
+        return self.collide
 
     def get_value(self) -> float:
         return self.val
