@@ -200,10 +200,12 @@ class LoadPage(Page):
             if self.file_up_button.check_collision():
                 if self.scroll_offset > 0:
                     self.scroll_offset -= 20
+                    self.file_slider.set_value(self.scroll_offset / self.surf_difference)
                         
             if self.file_down_button.check_collision():
                 if self.scroll_offset < self.surf_difference:
                     self.scroll_offset += 20
+                    self.file_slider.set_value(self.scroll_offset / self.surf_difference)
 
             if self.file_slider.check_collision():
                 self.scroll_offset = (self.file_slider.get_value() * self.surf_difference) // 1

@@ -198,14 +198,13 @@ class FileSlider:
                 self.click_offset = mouse_pos[1] - self.rect.top
 
             if self.click_offset != 0:
-                self.pos[1] = mouse_pos[1] - self.click_offset
+                self.pos[1] = mouse_pos[1] - self.click_offset - self.offset[1]
                 if self.pos[1] < self.min:
                     self.pos[1] = self.min
                 if self.pos[1] > self.max - self.height:
                     self.pos[1] = self.max - self.height
                 self.rect.topleft = (self.pos[0] + self.offset[0], self.pos[1] + self.offset[1])
                 self.val = (self.pos[1] - self.min) / self.range
-                print(f"nValue: {self.val}, nSlider Pos: {self.pos}, rect: {self.rect}, click_offset: {self.click_offset}")
         else:
             self.click_offset = 0
             self.rect.topleft = (self.pos[0] + self.offset[0], self.pos[1] + self.offset[1])
@@ -213,6 +212,10 @@ class FileSlider:
 
     def get_value(self) -> float:
         return self.val
+    
+    def set_value(self, value: float) -> None:
+        self.val = value
+        self.pos[1] = round(self.val * self.range + self.min)
 
     def render(self, surf: pg.surface) -> None:
         surf.blit(self.slider, self.pos)

@@ -1,6 +1,6 @@
 120
-clap/one, snare/one, kick/one, tom/two, 
+kick/one, crash/one, hihat/one, tom/two, 
+True, False, True, False, False, False, True, False, True, False, False, False, False, False, True, True, 
 False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, 
-False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, 
-False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, 
-False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, False, 
+False, False, False, False, False, False, False, False, False, False, True, False, False, False, False, False, 
+False, False, False, False, True, False, False, False, False, False, False, False, True, False, False, False, 
